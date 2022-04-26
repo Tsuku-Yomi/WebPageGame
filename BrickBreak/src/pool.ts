@@ -23,12 +23,16 @@ export namespace pool{
         
         public GetObject():T{
             if(this.nullPtrHead==this.poolSize){
-                this.poolSize=this.objectPool.push(new this.tConstructor);
+                this.poolSize=
+                this.objectPool.push(new this.tConstructor);
                 this.objectPool[this.nullPtrHead].ResetSelf();
                 this.objectPool[this.nullPtrHead].poolId=this.nullPtrHead;
+                this.nullPtrHead++;
                 this.nullPoolPtrArray.push(this.poolSize);
-                return this.objectPool[this.nullPtrHead++];
+                debug.log("Create new object:"+String(this.poolSize));
+                return this.objectPool[this.nullPtrHead-1];
             }else{
+                debug.log("Used pool Object:"+String(this.nullPtrHead));
                 let tmpPtr=this.nullPtrHead;
                 this.nullPtrHead=this.nullPoolPtrArray[this.nullPtrHead];
                 return this.objectPool[tmpPtr];

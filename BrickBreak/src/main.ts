@@ -7,6 +7,7 @@
 import kaboom from "kaboom";
 import { pool } from "./pool";
 import { prefab } from "./prefabObject";
+import { tmath } from "./tmath";
 
 kaboom();
 
@@ -18,21 +19,35 @@ let EnemyPool:pool.ObjectPool<prefab.Enemy>=new pool.ObjectPool<prefab.Enemy>(pr
 
 onUpdate(()=>{
     buttlePool.forEach((obj)=>{
+        if(obj.gameObject.hidden) return;
         obj.ButtleUpdate();
     })
 })
 
 onUpdate(()=>{
     EnemyPool.forEach((obj)=>{
-        obj.EnemyUpdate;
+        if(obj.gameObject.hidden) return;
+        //obj.EnemyUpdate();
         if(obj.gameObject.hp<=0){
             EnemyPool.DestroyObject(obj);
         }
     })    
 })
 
+onCollide("Buttle","Enemy",(objA,objB)=>{
+    if(objA.hidden||objB.hidden) return;
+    objA.towardVec=tmath.GetReflectionVector(
+        objA.towardVec,
+        tmath.GetNormalVector(
+            objA.pos,
+            objB.pos
+        )
+    )
+    objB.hp-=objA.attack;
+})
+
 let t=buttlePool.GetObject();
-t.Init(center(),vec2(-4,-3));
+t.Init(center(),vec2(1,0));
 
 //test fun//
 
@@ -40,4 +55,5 @@ onMousePress((pos)=>{
     let r=EnemyPool.GetObject();
     r.Init(1,pos);
 })
+
 

@@ -11,7 +11,7 @@ declare let origin:KaboomCtx['origin'];
 export namespace prefab{
     export class Buttle implements pool.IPoolObject{
         public static BULLTE_SPRITE_ID="hatjsgdsdcndy";
-        public static BULLTE_SPEED=2;//per frame pixel
+        public static BULLTE_SPEED=10;//per frame pixel
         public static BULLTE_TAIL_SHADOW_NUM=5;
         public poolId: number;
         public gameObject=add([
@@ -19,6 +19,7 @@ export namespace prefab{
             sprite(Buttle.BULLTE_SPRITE_ID),
             pos(),
             area({shape:"circle"}),
+            scale(0.5),
             origin("center"),
             {
                 towardVec:vec2(0,0),
@@ -74,7 +75,7 @@ export namespace prefab{
             }
             this.bullteShadowArray[0].moveTo(this.gameObject.pos);
         }
-        //TODO fku
+        
         public OnButtleHit(obj:GameObj<PosComp>){
             this.gameObject.towardVec=tmath.GetReflectionVector(
                 this.gameObject.towardVec,
@@ -97,7 +98,8 @@ export namespace prefab{
             sprite(Enemy.ENEMY_SPRITE_ID),
             pos(),
             area({shape:"circle"}),
-            text("life"),
+            scale(2),
+            //text("life"),
             origin("center"),
             {
                 moveClick:0,
@@ -122,7 +124,6 @@ export namespace prefab{
 
         public EnemyUpdate():void{
             if(this.gameObject.hidden) return;
-
             if(++this.gameObject.moveClick>=Enemy.ENEMY_DOWN_SPEED){
                 this.gameObject.moveClick=0;
                 this.gameObject.moveBy(0,1);
