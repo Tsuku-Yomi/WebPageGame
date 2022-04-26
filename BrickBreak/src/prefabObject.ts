@@ -2,7 +2,7 @@
 
 /// <reference path = "./tmath.ts" />
 /// <reference path ="./pool.ts" />
-import { GameObj, KaboomCtx, Vec2 } from "kaboom";
+import { GameObj, KaboomCtx, PosComp, Vec2 } from "kaboom";
 import { pool } from "./pool";
 import { tmath } from "./tmath";
 
@@ -22,6 +22,7 @@ export namespace prefab{
             origin("center"),
             {
                 towardVec:vec2(0,0),
+                attack:1
             }
         ]);
         public bullteShadowArray=Array<GameObj>(Buttle.BULLTE_TAIL_SHADOW_NUM);
@@ -74,7 +75,15 @@ export namespace prefab{
             this.bullteShadowArray[0].moveTo(this.gameObject.pos);
         }
         //TODO fku
-        public OnButtleHit(){}
+        public OnButtleHit(obj:GameObj<PosComp>){
+            this.gameObject.towardVec=tmath.GetReflectionVector(
+                this.gameObject.towardVec,
+                tmath.GetNormalVector(
+                    this.gameObject.pos,
+                    obj.pos
+                )
+            );
+        }
     }
 
     export class Enemy implements pool.IPoolObject{
@@ -100,16 +109,13 @@ export namespace prefab{
             this.ResetSelf();
         }
 
-        public Create(): pool.IPoolObject {
-            return new Enemy();
-        }
-
         public ResetSelf(): void {
             this.gameObject.hidden=true;
         
         }
 
         public Init(hp:number,pos:Vec2):void{
+            this.gameObject.hidden=false;
             this.gameObject.pos=pos;
             this.gameObject.hp=hp;
         }
@@ -121,7 +127,10 @@ export namespace prefab{
                 this.gameObject.moveClick=0;
                 this.gameObject.moveBy(0,1);
             }
+        }
 
+        public OnBeHit(obj:GameObj){
+            this.gameObject.hp-=obj.attack;
         }
     }    
 }
