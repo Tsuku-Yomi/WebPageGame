@@ -29,10 +29,10 @@ export namespace pool{
                 this.objectPool[this.nullPtrHead].poolId=this.nullPtrHead;
                 this.nullPtrHead++;
                 this.nullPoolPtrArray.push(this.poolSize);
-                debug.log("Create new object:"+String(this.poolSize));
+                //debug.log("Create new object:"+String(this.poolSize));
                 return this.objectPool[this.nullPtrHead-1];
             }else{
-                debug.log("Used pool Object:"+String(this.nullPtrHead));
+                //debug.log("Used pool Object:"+String(this.nullPtrHead));
                 let tmpPtr=this.nullPtrHead;
                 this.nullPtrHead=this.nullPoolPtrArray[this.nullPtrHead];
                 return this.objectPool[tmpPtr];

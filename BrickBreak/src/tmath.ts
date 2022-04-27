@@ -12,7 +12,7 @@ export namespace tmath{
 
     //Get Pos Normal vector
     export function GetNormalVector(posA:Vec2,posB:Vec2 ):Vec2{
-        debug.log(String(posA.x-posB.x)+"/"+String(posA.y-posB.y));
+        //debug.log(String(posA.x-posB.x)+"/"+String(posA.y-posB.y));
         return vec2(posA.x-posB.x,posA.y-posB.y);
     }
     //Get reflection vector

@@ -2,7 +2,7 @@
 
 /// <reference path = "./tmath.ts" />
 /// <reference path ="./pool.ts" />
-import { GameObj, KaboomCtx, PosComp, Vec2 } from "kaboom";
+import { GameObj, KaboomCtx, PosComp, Shape, Vec2 } from "kaboom";
 import { pool } from "./pool";
 import { tmath } from "./tmath";
 
@@ -10,8 +10,9 @@ declare let origin:KaboomCtx['origin'];
 
 export namespace prefab{
     export class Buttle implements pool.IPoolObject{
+        public static BULLTE_SCALE=0.5;
         public static BULLTE_SPRITE_ID="hatjsgdsdcndy";
-        public static BULLTE_SPEED=10;//per frame pixel
+        public static BULLTE_SPEED=20;//per frame pixel
         public static BULLTE_TAIL_SHADOW_NUM=5;
         public poolId: number;
         public gameObject=add([
@@ -19,7 +20,7 @@ export namespace prefab{
             sprite(Buttle.BULLTE_SPRITE_ID),
             pos(),
             area({shape:"circle"}),
-            scale(0.5),
+            scale(Buttle.BULLTE_SCALE),
             origin("center"),
             {
                 towardVec:vec2(0,0),
@@ -32,14 +33,12 @@ export namespace prefab{
                 this.bullteShadowArray[i]=add([
                     sprite(Buttle.BULLTE_SPRITE_ID),
                     pos(),
+                    scale(Buttle.BULLTE_SCALE),
                     opacity((Buttle.BULLTE_TAIL_SHADOW_NUM-i)/(Buttle.BULLTE_TAIL_SHADOW_NUM+1)),
                     origin("center"),
                 ])
             }
             this.ResetSelf();
-        }
-        public Create(): pool.IPoolObject {
-            return new Buttle();
         }
         public ResetSelf(): void {
             this.gameObject.hidden=true;
@@ -116,7 +115,14 @@ export namespace prefab{
         
         }
 
-        public Init(hp:number,pos:Vec2):void{
+        public Init(hp:number,pos:Vec2,areaType:Shape):void{
+            if(areaType=='circle'){
+                this.gameObject.play("cir");
+                this.gameObject.area.shape="circle";
+            }else{
+                this.gameObject.play("rect");
+                this.gameObject.area.shape="rect";
+            }
             this.gameObject.hidden=false;
             this.gameObject.pos=pos;
             this.gameObject.hp=hp;
