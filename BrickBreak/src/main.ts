@@ -19,6 +19,8 @@ kaboom();
 const SHOOTER_SPRITE_ID="ifimdjcanulvme";
 const AIMLINE_SPRITE_ID="cnoenrcvhuo";
 
+//TODO  生成函数
+
 loadSprite(prefab.Buttle.BULLTE_SPRITE_ID,"/sprite/buttle.png");
 loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,anims:{
     cir:{
@@ -32,10 +34,40 @@ loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,anims:{
 }});
 loadSprite(SHOOTER_SPRITE_ID,"/sprite/shooter.png");
 loadSprite(AIMLINE_SPRITE_ID,"/sprite/aimline.png");
+loadSprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,"/sprite/bufficon.png",{
+    sliceX:5,anims:{
+        empty:{
+            from:0,
+            to:0
+        },
+        attackup:{
+            from:1,
+            to:1
+        },
+        buttlenumup:{
+            from:2,
+            to:2
+        },
+        frozen:{
+            from:3,
+            to:3
+        },
+        shotspeedup:{
+            from:4,
+            to:4
+        }
+    }
+});
 offset.InitOffset();
 
 
 var SHOOTER_COLD_DOWN=10;
+var BIG_ENEMY_COLD_DOWN=10;
+var MID_ENEMY_COLD_DOWN=3;
+var SUM_COLD_DOWN=3;
+
+
+
 let buttlePool:pool.ObjectPool<prefab.Buttle>=new pool.ObjectPool<prefab.Buttle>(prefab.Buttle);
 let EnemyPool:pool.ObjectPool<prefab.Enemy>=new pool.ObjectPool<prefab.Enemy>(prefab.Enemy);
 
@@ -73,7 +105,7 @@ onUpdate(()=>{
     buttlePool.forEach((obj)=>{
         if(obj.gameObject.hidden) return;
         obj.ButtleUpdate();
-        if(obj.gameObject.pos.y>=height()-1){
+        if(obj.gameObject.pos.y>=offset.BALL_RECYCLE_LINE){
             shooter.buttleNum++;
             buttlePool.DestroyObject(obj);
         }
@@ -83,7 +115,7 @@ onUpdate(()=>{
 onUpdate(()=>{
     EnemyPool.forEach((obj)=>{
         if(obj.gameObject.hidden) return;
-        //obj.EnemyUpdate();
+        obj.EnemyUpdate();
         if(obj.gameObject.hp<=0){
             EnemyPool.DestroyObject(obj);
         }
@@ -154,4 +186,8 @@ function updateShooterRotato(activePos:Vec2){
     else
         shooter.angle=180-deg; 
     aimLine.angle=shooter.angle;
+}
+
+function SpawnEnemyUpdate(){
+
 }

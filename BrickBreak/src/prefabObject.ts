@@ -2,7 +2,10 @@
 
 /// <reference path = "./tmath.ts" />
 /// <reference path ="./pool.ts" />
+/// <reference path ="./layersetting.ts"/>
 import { GameObj, KaboomCtx, PosComp, Shape, Vec2 } from "kaboom";
+import { layersetting } from "./layersetting";
+import { offset } from "./lineoffset";
 import { pool } from "./pool";
 import { tmath } from "./tmath";
 
@@ -12,7 +15,7 @@ export namespace prefab{
     export class Buttle implements pool.IPoolObject{
         public static BULLTE_SCALE=0.5;
         public static BULLTE_SPRITE_ID="hatjsgdsdcndy";
-        public static BULLTE_SPEED=20;//per frame pixel
+        public static BULLTE_SPEED=10;//per frame pixel
         public static BULLTE_TAIL_SHADOW_NUM=5;
         public poolId: number;
         public gameObject=add([
@@ -21,6 +24,7 @@ export namespace prefab{
             pos(),
             area({shape:"circle"}),
             scale(Buttle.BULLTE_SCALE),
+            z(layersetting.ENTITY_LAYER),
             origin("center"),
             {
                 towardVec:vec2(0,0),
@@ -33,6 +37,7 @@ export namespace prefab{
                 this.bullteShadowArray[i]=add([
                     sprite(Buttle.BULLTE_SPRITE_ID),
                     pos(),
+                    z(layersetting.ENTITY_LAYER),
                     scale(Buttle.BULLTE_SCALE),
                     opacity((Buttle.BULLTE_TAIL_SHADOW_NUM-i)/(Buttle.BULLTE_TAIL_SHADOW_NUM+1)),
                     origin("center"),
@@ -62,7 +67,7 @@ export namespace prefab{
             //else move
             if(this.gameObject.pos.x<0)this.gameObject.towardVec.x=Math.abs(this.gameObject.towardVec.x);
             if(this.gameObject.pos.x>width()) this.gameObject.towardVec.x=-Math.abs(this.gameObject.towardVec.x);
-            if(this.gameObject.pos.y<0)this.gameObject.towardVec.y=Math.abs(this.gameObject.towardVec.y);
+            if(this.gameObject.pos.y<offset.SETTING_ENEMY_SHOW_LINE)this.gameObject.towardVec.y=Math.abs(this.gameObject.towardVec.y);
             if(this.gameObject.pos.y>height()) this.gameObject.towardVec.y=-Math.abs(this.gameObject.towardVec.y);
 
             this.gameObject.moveBy(
@@ -89,30 +94,42 @@ export namespace prefab{
     export class Enemy implements pool.IPoolObject{
         
         public static ENEMY_SPRITE_ID="floatncu";
-        public static ENEMY_DOWN_SPEED=1;//per piexl frame
+        public static ENEMY_EFFECT_SPRITE_ID="textisalie";
+        //public static ENEMY_DOWN_SPEED=1;//per piexl frame
         public poolId: number;
 
         public gameObject=add([
             "Enemy",
             sprite(Enemy.ENEMY_SPRITE_ID),
             pos(),
+            z(layersetting.ENTITY_LAYER),
             area({shape:"circle"}),
             scale(2),
-            //text("life"),
+            //text("1",{size:12}),
             origin("center"),
             {
                 moveClick:0,
                 hp:10,
             }
         ])
-        
+        public gameObjectEffect=add(
+            [
+                pos(),
+                origin("center"),
+                sprite(Enemy.ENEMY_EFFECT_SPRITE_ID),
+                text("1",{
+                    size:15
+                }),
+                z(layersetting.HUB_LAYER),
+            ]
+        )
         public constructor(){
             this.ResetSelf();
         }
 
         public ResetSelf(): void {
             this.gameObject.hidden=true;
-        
+            this.gameObjectEffect.hidden=true;
         }
 
         public Init(hp:number,pos:Vec2,areaType:Shape):void{
@@ -123,6 +140,7 @@ export namespace prefab{
                 this.gameObject.play("rect");
                 this.gameObject.area.shape="rect";
             }
+            this.gameObjectEffect.hidden=false;
             this.gameObject.hidden=false;
             this.gameObject.pos=pos;
             this.gameObject.hp=hp;
@@ -130,10 +148,9 @@ export namespace prefab{
 
         public EnemyUpdate():void{
             if(this.gameObject.hidden) return;
-            if(++this.gameObject.moveClick>=Enemy.ENEMY_DOWN_SPEED){
-                this.gameObject.moveClick=0;
-                this.gameObject.moveBy(0,1);
-            }
+            this.gameObjectEffect.text=String(this.gameObject.hp);
+            this.gameObject.moveBy(0,offset.ENEMY_DROP_SPEED*dt());
+            this.gameObjectEffect.pos=this.gameObject.pos;
         }
 
         public OnBeHit(obj:GameObj){
