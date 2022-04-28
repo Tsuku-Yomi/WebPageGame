@@ -16,17 +16,17 @@ export namespace prefab{
 
 
     export class Buttle implements pool.IPoolObject{
-        public static BULLTE_SCALE=0.5;
+        //public static BULLTE_SCALE=0.5;
         public static BULLTE_SPRITE_ID="hatjsgdsdcndy";
-        public static BULLTE_SPEED=10;//per frame pixel
-        public static BULLTE_TAIL_SHADOW_NUM=5;
+        public static BULLTE_SPEED=10*60;//per frame pixel
+        public static BULLTE_TAIL_SHADOW_NUM=2;
         public poolId: number;
         public gameObject=add([
             "Buttle",
             sprite(Buttle.BULLTE_SPRITE_ID),
             pos(),
             area({shape:"circle"}),
-            scale(Buttle.BULLTE_SCALE),
+            scale(offset.ENEMY_SCALE/4),
             z(layersetting.ENTITY_LAYER),
             origin("center"),
             {
@@ -41,7 +41,7 @@ export namespace prefab{
                     sprite(Buttle.BULLTE_SPRITE_ID),
                     pos(),
                     z(layersetting.ENTITY_LAYER),
-                    scale(Buttle.BULLTE_SCALE),
+                    scale(offset.ENEMY_SCALE/4),
                     opacity((Buttle.BULLTE_TAIL_SHADOW_NUM-i)/(Buttle.BULLTE_TAIL_SHADOW_NUM+1)),
                     origin("center"),
                 ])
@@ -49,6 +49,7 @@ export namespace prefab{
             this.ResetSelf();
         }
         public ResetSelf(): void {
+            this.gameObject.pos=vec2(-100,-100);
             this.gameObject.hidden=true;
             this.bullteShadowArray.forEach((obj:GameObj)=>{
                 obj.hidden=true;
@@ -71,12 +72,12 @@ export namespace prefab{
             //else move
             if(this.gameObject.pos.x<0)this.gameObject.towardVec.x=Math.abs(this.gameObject.towardVec.x);
             if(this.gameObject.pos.x>width()) this.gameObject.towardVec.x=-Math.abs(this.gameObject.towardVec.x);
-            if(this.gameObject.pos.y<offset.SETTING_ENEMY_SHOW_LINE)this.gameObject.towardVec.y=Math.abs(this.gameObject.towardVec.y);
+            if(this.gameObject.pos.y<offset.ENEMY_SHOW_LINE)this.gameObject.towardVec.y=Math.abs(this.gameObject.towardVec.y);
             if(this.gameObject.pos.y>height()) this.gameObject.towardVec.y=-Math.abs(this.gameObject.towardVec.y);
 
             this.gameObject.moveBy(
-                this.gameObject.towardVec.x*Buttle.BULLTE_SPEED,
-                this.gameObject.towardVec.y*Buttle.BULLTE_SPEED
+                this.gameObject.towardVec.x*Buttle.BULLTE_SPEED*dt(),
+                this.gameObject.towardVec.y*Buttle.BULLTE_SPEED*dt()
             );
             for(let i=Buttle.BULLTE_TAIL_SHADOW_NUM-1;i>0;--i){
                 this.bullteShadowArray[i].moveTo(this.bullteShadowArray[i-1].pos);
@@ -129,7 +130,7 @@ export namespace prefab{
                 origin("center"),
                 sprite(Enemy.ENEMY_EFFECT_SPRITE_ID),
                 text("1",{
-                    size:15
+                    size:28
                 }),
                 z(layersetting.HUB_LAYER),
             ]
@@ -139,6 +140,7 @@ export namespace prefab{
         }
 
         public ResetSelf(): void {
+            this.gameObject.pos=vec2(-200,-200);
             this.gameObject.hidden=true;
             this.gameObjectEffect.hidden=true;
         }
@@ -156,14 +158,19 @@ export namespace prefab{
             switch(buff){
                 case 0:
                     tmpstring='empty';
+                    break;
                 case 1:
                     tmpstring='attackup';
+                    break;
                 case 2:
                     tmpstring='buttlenumup';
+                    break;
                 case 3:
                     tmpstring='frozen';
+                    break;
                 case 4:
                     tmpstring='star';
+                    break;
                 default:
                     tmpstring='empty';
             }
@@ -199,15 +206,23 @@ export namespace prefab{
         public gameObject=add(
             [
                 sprite(Effect.EFFECT_SPRITE_ID),
-
-
+                scale(1),
+                pos(),
+                origin("center"),
+                z(layersetting.EFFECT_LAYER)
             ]
         )
 
         ResetSelf(): void {
-            
+            this.gameObject.hidden=true;
         }
-
+        Init(pos:Vec2,anim:string,scale:number,moveTo:Vec2,speed:number){
+            this.gameObject.pos=pos;
+            this.gameObject.hidden=false;
+            this.gameObject.play(anim);
+            this.gameObject.scale=scale;
+            this.gameObject.moveTo(moveTo,speed);
+        }
     }
 }
 
