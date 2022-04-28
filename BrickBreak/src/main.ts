@@ -21,8 +21,6 @@ kaboom();
 const SHOOTER_SPRITE_ID="ifimdjcanulvme";
 const AIMLINE_SPRITE_ID="cnoenrcvhuo";
 
-//TODO  生成函数
-
 loadSprite(prefab.Buttle.BULLTE_SPRITE_ID,"/sprite/buttle.png");
 loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,anims:{
     cir:{
@@ -54,7 +52,7 @@ loadSprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,"/sprite/bufficon.png",{
             from:3,
             to:3
         },
-        shotspeedup:{
+        star:{
             from:4,
             to:4
         }
@@ -67,7 +65,10 @@ var SHOOTER_COLD_DOWN=10;
 var BIG_ENEMY_COLD_DOWN=10;
 var MID_ENEMY_COLD_DOWN=3;
 var SUM_COLD_DOWN=3;
+var FROZEN_TIME=5;
 
+let starCount=0;
+let score=0;
 let spawnColddown=0;
 let bigCooldown=BIG_ENEMY_COLD_DOWN;
 let midCooldown=MID_ENEMY_COLD_DOWN;
@@ -78,6 +79,15 @@ for(let i=0;i<offset.SETTING_LINE_NUM;++i){
 }
 let buttlePool:pool.ObjectPool<prefab.Buttle>=new pool.ObjectPool<prefab.Buttle>(prefab.Buttle);
 let EnemyPool:pool.ObjectPool<prefab.Enemy>=new pool.ObjectPool<prefab.Enemy>(prefab.Enemy);
+let isFrozen=false;
+
+let gameState=0;
+/*
+0->GAME_MENU
+1->GAME_RUN
+2->GAME_OVER
+3->GAME_PAUSE
+*/
 
 const shooter=add(
     [
@@ -88,13 +98,14 @@ const shooter=add(
         origin("center"),
         {
             buttleNum:30,
+            attack:1,
             face:vec2(0,-1),
             colddown:0,
         },
         z(layersetting.SHOOTER_LAYER),
     ]
 );
-
+shooter.hidden=true;
 const aimLine=add(
     [
         sprite(AIMLINE_SPRITE_ID),
@@ -104,13 +115,34 @@ const aimLine=add(
         z(layersetting.HINTLINE_LAYER),
     ]
 )
-
+shooter.hidden=true;
 
 
 onUpdate(shooterUpdate);
+
+let inputLock=false;
+let inputLockId;
+
+onTouchStart((id,pos)=>{
+    if(!inputLock){
+        updateShooterRotato(pos);
+        inputLock=true;
+        inputLockId=id;
+    }
+})
+onTouchEnd((id,pos)=>{
+    if(inputLockId==id){
+        inputLock=false;
+    }
+})
+onTouchMove((id,pos)=>{
+    if(id==inputLockId)
+        updateShooterRotato(pos);
+});
 onMouseDown(updateShooterRotato);
 
 onUpdate(()=>{
+    if(gameState!=1) return;
     buttlePool.forEach((obj)=>{
         if(obj.gameObject.hidden) return;
         obj.ButtleUpdate();
@@ -122,9 +154,10 @@ onUpdate(()=>{
 })
 
 onUpdate(()=>{
+    if(gameState!=1) return;
     EnemyPool.forEach((obj)=>{
         if(obj.gameObject.hidden) return;
-        obj.EnemyUpdate();
+        obj.EnemyUpdate(isFrozen);
         if(obj.gameObject.hp<=0){
             EnemyPool.DestroyObject(obj);
         }
@@ -138,6 +171,7 @@ onUpdate(SpawnEnemy);
 
 onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
+    score++;
     if(objB.area.shape=="circle")
     objA.towardVec=tmath.GetReflectionVector(
         objA.towardVec,
@@ -158,32 +192,31 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
     objB.hp-=objA.attack;
 })
 
-// let t=buttlePool.GetObject();
-// t.Init(center(),vec2(1,0));
+
 
 /*/test fun//
-
+// let t=buttlePool.GetObject();
+// t.Init(center(),vec2(1,0));
 onMousePress((pos)=>{
     let r=EnemyPool.GetObject();
     r.Init(15,pos,(randi(0,2)==1)?"circle":"rect");
 })
 
-
-
-
 /*/// function 
 
 function shooterUpdate(){
+    if(gameState!=1) return;
     if(shooter.colddown>0)shooter.colddown-=1;
     if(shooter.buttleNum>0&&shooter.colddown<=0){
         shooter.colddown=SHOOTER_COLD_DOWN;
         shooter.buttleNum--;
         let tmp=buttlePool.GetObject();
-        tmp.Init(offset.SHOOTER_POS,shooter.face);
+        tmp.Init(offset.SHOOTER_POS,shooter.face,shooter.attack);
     }
 }
 
 function updateShooterRotato(activePos:Vec2){
+    if(gameState!=1) return;
     if(activePos.y>=shooter.pos.y) return;
     if(activePos.x==shooter.pos.x) {
         shooter.angle=90;
@@ -203,10 +236,12 @@ function updateShooterRotato(activePos:Vec2){
 }
 
 function SpawnEnemy(){
+    if(gameState!=1) return;
     if(spawnColddown<=0){
         spawnColddown+=offset.SPAWN_COLD_DOWN;
     }else{
-        spawnColddown-=dt();
+        if(!isFrozen)
+            spawnColddown-=dt();
         return;
     }
     if(sumCooldown<=0){
@@ -241,4 +276,48 @@ function SpawnEnemy(){
     bigCooldown--;
     midCooldown--;
     
+}
+//TODO
+function GameStateController(state:number){
+    gameState=state;
+    switch(state){
+        case 0:
+        let btnStart=add([
+            
+        ])
+        //尝试销毁结算界面
+        //生成主页按钮
+            break;
+        case 1:
+        //尝试销毁主页按钮
+        //显示HUB，GUI，shooter
+            break;
+        case 2:
+
+        //尝试销毁暂停界面
+        //隐藏HUB,GUI,shooter
+        //生成结算界面
+            break;
+        case 3:
+        //生成暂停界面
+            break;
+    }
+}
+
+//TODO 特效
+
+function GetBuff(pos:Vec2,type:number){
+    switch(type){
+        case 1:
+            shooter.attack++;
+        case 2:
+            shooter.buttleNum++;
+        case 3:
+            isFrozen=true;
+            wait(FROZEN_TIME,()=>{
+                isFrozen=false;
+            })
+        case 4:
+            starCount++;
+    }
 }

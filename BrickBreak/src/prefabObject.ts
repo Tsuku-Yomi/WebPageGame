@@ -12,6 +12,9 @@ import { tmath } from "./tmath";
 declare let origin:KaboomCtx['origin'];
 
 export namespace prefab{
+
+
+
     export class Buttle implements pool.IPoolObject{
         public static BULLTE_SCALE=0.5;
         public static BULLTE_SPRITE_ID="hatjsgdsdcndy";
@@ -52,12 +55,13 @@ export namespace prefab{
             });
 
         }
-        public Init(pos:Vec2,face:Vec2){
+        public Init(pos:Vec2,face:Vec2,attack:number){
             this.gameObject.hidden=false;
             this.bullteShadowArray.forEach((obj:GameObj)=>{
                 obj.hidden=false;
                 obj.moveTo(pos);
             });
+            this.gameObject.attack=attack;
             this.gameObject.moveTo(pos);
             this.gameObject.towardVec=tmath.Normalized(face);
         }
@@ -91,6 +95,11 @@ export namespace prefab{
         }
     }
 
+
+
+
+
+
     export class Enemy implements pool.IPoolObject{
         
         public static ENEMY_SPRITE_ID="floatncu";
@@ -110,6 +119,7 @@ export namespace prefab{
             {
                 moveClick:0,
                 hp:10,
+                buff:0,
             }
         ])
         public gameObjectEffect=add(
@@ -141,6 +151,23 @@ export namespace prefab{
                 this.gameObject.play("rect");
                 this.gameObject.area.shape="rect";
             }
+            this.gameObject.buff=buff;
+            let tmpstring:string;
+            switch(buff){
+                case 0:
+                    tmpstring='empty';
+                case 1:
+                    tmpstring='attackup';
+                case 2:
+                    tmpstring='buttlenumup';
+                case 3:
+                    tmpstring='frozen';
+                case 4:
+                    tmpstring='star';
+                default:
+                    tmpstring='empty';
+            }
+            this.gameObjectEffect.play(tmpstring);
             this.gameObject.scaleTo(size*offset.ENEMY_SCALE);
             this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE);
             this.gameObjectEffect.hidden=false;
@@ -150,10 +177,11 @@ export namespace prefab{
             this.gameObject.hp=hp;
         }
 
-        public EnemyUpdate():void{
+        public EnemyUpdate(isFrozen:boolean):void{
             if(this.gameObject.hidden) return;
             this.gameObjectEffect.text=String(this.gameObject.hp);
-            this.gameObject.moveBy(0,offset.ENEMY_DROP_SPEED*dt());
+            if(!isFrozen)
+                this.gameObject.moveBy(0,offset.ENEMY_DROP_SPEED*dt());
             this.gameObjectEffect.pos=this.gameObject.pos;
         }
 
@@ -161,5 +189,25 @@ export namespace prefab{
             this.gameObject.hp-=obj.attack;
         }
     }    
+
+
+    export class Effect implements pool.IPoolObject{
+        public static EFFECT_SPRITE_ID="givemekaifencai";
+        
+        public poolId: number;
+
+        public gameObject=add(
+            [
+                sprite(Effect.EFFECT_SPRITE_ID),
+
+
+            ]
+        )
+
+        ResetSelf(): void {
+            
+        }
+
+    }
 }
 

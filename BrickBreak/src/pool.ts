@@ -20,7 +20,13 @@ export namespace pool{
             this.poolSize=0;
             this.nullPtrHead=0;
         }
-        
+        public Init(){
+            this.nullPtrHead=0;
+            for(let i=0;i<this.poolSize;++i){
+                this.nullPoolPtrArray[i]=i+1;
+                this.objectPool[i].ResetSelf();
+            }
+        }
         public GetObject():T{
             if(this.nullPtrHead==this.poolSize){
                 this.poolSize=
