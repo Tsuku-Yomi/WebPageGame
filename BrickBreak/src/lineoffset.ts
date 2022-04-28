@@ -7,6 +7,7 @@ export namespace offset{
     export const SETTING_ENEMY_SHOW_LINE=100;
     export const SETTING_TIME_BLOCK_DROP=7;
 
+    export var SPAWN_COLD_DOWN;
     export var ZERO_LINE_OFFSET;
     export var LINE_WIDTH;
     export var SHOOTER_POS;
@@ -29,6 +30,7 @@ export namespace offset{
         BALL_RECYCLE_LINE=height()-1;
         ENEMY_SCALE=SETTING_ENEMY_SCALE_BLOCK*LINE_WIDTH/SETTING_SPRITE_WIDTH;
         ENEMY_DROP_SPEED=(width()-SETTING_ENEMY_SHOW_LINE-SETTING_SHOOTER_DISTANCE_FRONT)/SETTING_TIME_BLOCK_DROP;
-
+        SPAWN_COLD_DOWN=LINE_WIDTH/ENEMY_DROP_SPEED;
+        debug.log(String(ENEMY_SCALE));
     }
 }

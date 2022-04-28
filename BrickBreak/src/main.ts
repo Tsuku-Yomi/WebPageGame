@@ -2,9 +2,11 @@
 /// <reference path = "./tmath.ts" />
 /// <reference path ="./pool.ts" />
 /// <reference path ="./prefabObject.ts" />
-/// <reference path ="lineoffset.ts" />
+/// <reference path ="./lineoffset.ts" />
+/// <reference path ="layersetting.ts"/>
 
 import kaboom, { KaboomCtx, Vec2 } from "kaboom";
+import { layersetting } from "./layersetting";
 import { offset } from "./lineoffset";
 import { pool } from "./pool";
 import { prefab } from "./prefabObject";
@@ -66,8 +68,14 @@ var BIG_ENEMY_COLD_DOWN=10;
 var MID_ENEMY_COLD_DOWN=3;
 var SUM_COLD_DOWN=3;
 
-
-
+let spawnColddown=0;
+let bigCooldown=BIG_ENEMY_COLD_DOWN;
+let midCooldown=MID_ENEMY_COLD_DOWN;
+let sumCooldown=SUM_COLD_DOWN;
+let spawnArr=Array<number>(offset.SETTING_LINE_NUM);
+for(let i=0;i<offset.SETTING_LINE_NUM;++i){
+    spawnArr[i]=0;
+}
 let buttlePool:pool.ObjectPool<prefab.Buttle>=new pool.ObjectPool<prefab.Buttle>(prefab.Buttle);
 let EnemyPool:pool.ObjectPool<prefab.Enemy>=new pool.ObjectPool<prefab.Enemy>(prefab.Enemy);
 
@@ -82,7 +90,8 @@ const shooter=add(
             buttleNum:30,
             face:vec2(0,-1),
             colddown:0,
-        }
+        },
+        z(layersetting.SHOOTER_LAYER),
     ]
 );
 
@@ -92,7 +101,7 @@ const aimLine=add(
         pos(offset.SHOOTER_POS),
         origin("right"),
         rotate(90),
-        z(-1),
+        z(layersetting.HINTLINE_LAYER),
     ]
 )
 
@@ -119,8 +128,13 @@ onUpdate(()=>{
         if(obj.gameObject.hp<=0){
             EnemyPool.DestroyObject(obj);
         }
+        if(obj.gameObject.pos.y>width()+20){
+            EnemyPool.DestroyObject(obj);
+        }
     })    
 })
+
+onUpdate(SpawnEnemy);
 
 onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
@@ -147,7 +161,7 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
 // let t=buttlePool.GetObject();
 // t.Init(center(),vec2(1,0));
 
-//test fun//
+/*/test fun//
 
 onMousePress((pos)=>{
     let r=EnemyPool.GetObject();
@@ -157,7 +171,7 @@ onMousePress((pos)=>{
 
 
 
-// function 
+/*/// function 
 
 function shooterUpdate(){
     if(shooter.colddown>0)shooter.colddown-=1;
@@ -188,6 +202,43 @@ function updateShooterRotato(activePos:Vec2){
     aimLine.angle=shooter.angle;
 }
 
-function SpawnEnemyUpdate(){
-
+function SpawnEnemy(){
+    if(spawnColddown<=0){
+        spawnColddown+=offset.SPAWN_COLD_DOWN;
+    }else{
+        spawnColddown-=dt();
+        return;
+    }
+    if(sumCooldown<=0){
+        if(bigCooldown<=0){
+            if(chance(0.5)){
+                let tmp=randi(0,offset.SETTING_LINE_NUM-2);
+                EnemyPool.GetObject().Init(10,offset.GetSpawnPos(tmp,3),chance(0.5)?"circle":"rect",3);
+                spawnArr[tmp]=spawnArr[tmp+1]=spawnArr[tmp+2]=3;
+                sumCooldown=SUM_COLD_DOWN;
+                bigCooldown=BIG_ENEMY_COLD_DOWN;
+            }
+        }
+        if(midCooldown<=0&&sumCooldown<=0){
+            if(chance(0.5)){
+                let tmp=randi(0,offset.SETTING_LINE_NUM-1);
+                EnemyPool.GetObject().Init(10,offset.GetSpawnPos(tmp,2),chance(0.5)?"circle":"rect",2) ;
+                spawnArr[tmp]=spawnArr[tmp+1]=2;
+                sumCooldown=SUM_COLD_DOWN;
+                midCooldown=MID_ENEMY_COLD_DOWN;
+            }
+        }
+    }
+    for(let i=0;i<offset.SETTING_LINE_NUM;++i){
+        if(spawnArr[i]==0&&chance(0.85)){
+            EnemyPool.GetObject().Init(10,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1) ;
+        }else{
+            spawnArr[i]--;
+        }
+            
+    }
+    sumCooldown--;
+    bigCooldown--;
+    midCooldown--;
+    
 }

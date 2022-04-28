@@ -104,7 +104,7 @@ export namespace prefab{
             pos(),
             z(layersetting.ENTITY_LAYER),
             area({shape:"circle"}),
-            scale(2),
+            scale(offset.ENEMY_SCALE),
             //text("1",{size:12}),
             origin("center"),
             {
@@ -115,6 +115,7 @@ export namespace prefab{
         public gameObjectEffect=add(
             [
                 pos(),
+                scale(offset.ENEMY_SCALE),
                 origin("center"),
                 sprite(Enemy.ENEMY_EFFECT_SPRITE_ID),
                 text("1",{
@@ -132,7 +133,7 @@ export namespace prefab{
             this.gameObjectEffect.hidden=true;
         }
 
-        public Init(hp:number,pos:Vec2,areaType:Shape):void{
+        public Init(hp:number,pos:Vec2,areaType:Shape,size:number,buff?:number):void{
             if(areaType=='circle'){
                 this.gameObject.play("cir");
                 this.gameObject.area.shape="circle";
@@ -140,8 +141,11 @@ export namespace prefab{
                 this.gameObject.play("rect");
                 this.gameObject.area.shape="rect";
             }
+            this.gameObject.scaleTo(size*offset.ENEMY_SCALE);
+            this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE);
             this.gameObjectEffect.hidden=false;
             this.gameObject.hidden=false;
+            this.gameObjectEffect.pos=pos;
             this.gameObject.pos=pos;
             this.gameObject.hp=hp;
         }
