@@ -201,6 +201,9 @@ export namespace prefab{
     export class Effect implements pool.IPoolObject{
         public static EFFECT_SPRITE_ID="givemekaifencai";
         
+        public moveSpeed:number;
+        public rotateSpeed:number;
+        public aimPos:Vec2;
         public poolId: number;
 
         public gameObject=add(
@@ -208,20 +211,36 @@ export namespace prefab{
                 sprite(Effect.EFFECT_SPRITE_ID),
                 scale(1),
                 pos(),
+                rotate(0),
                 origin("center"),
-                z(layersetting.EFFECT_LAYER)
+                z(layersetting.MENU_LAYER),
+                color(255,0,0),
             ]
         )
 
         ResetSelf(): void {
             this.gameObject.hidden=true;
+            this.moveSpeed=0;
+            this.rotateSpeed=0;
+            //this.isRotate=false;
+            //this.isMove=false;
         }
-        Init(pos:Vec2,anim:string,scale:number,moveTo:Vec2,speed:number){
+
+        EffectUpdate(){
+            if(this.gameObject.hidden)return;
+            this.gameObject.moveTo(this.aimPos,this.moveSpeed);
+            this.gameObject.angle+=this.rotateSpeed*dt();
+        }
+
+        Init(pos:Vec2,lay:number,anim:string,scale:number,aim:Vec2,movespeed:number,rotatespeed:number){
+            this.gameObject.z=lay;
             this.gameObject.pos=pos;
             this.gameObject.hidden=false;
             this.gameObject.play(anim);
             this.gameObject.scale=scale;
-            this.gameObject.moveTo(moveTo,speed);
+            this.moveSpeed=movespeed;
+            this.rotateSpeed=rotatespeed;
+            this.aimPos=aim;
         }
     }
 }

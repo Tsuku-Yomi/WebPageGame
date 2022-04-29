@@ -77,6 +77,8 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
 
     }
 })
+loadSprite("ulticon","/sprite/ulticon.png");
+loadSprite("ultline","/sprite/ultline.png");
 ///
 
 offset.InitOffset();
@@ -181,6 +183,49 @@ let menuBg=add([
     z(layersetting.MENU_BACKGROUND_LAYER)
 ]);
 menuBg.hidden=true;
+let ulticon=add([
+    sprite("ulticon"),
+    scale(1),
+    pos(center()),
+    origin("center"),
+    z(layersetting.MENU_LAYER),
+    {
+        nowScale:0.1,
+    }
+]);
+ulticon.hidden=true;
+ulticon.onUpdate(()=>{
+    if(ulticon.hidden) return;
+    if(ulticon.nowScale>1.5){
+        wait(0.5,()=>{ulticon.hidden=true;}) 
+        ulticon.nowScale=-1;
+    }    
+    else if(ulticon.nowScale>0){
+        ulticon.nowScale+=dt()*2;
+        ulticon.scaleTo(ulticon.nowScale);
+    }
+    //debug.log(String(ulticon.scale));
+});
+let ultline=add([
+    sprite("ultline"),
+    pos(0,offset.SHOOTER_POS.y),
+    origin("right"),
+    {
+        power:0,
+
+    }
+])
+ultline.hidden=true;
+ultline.onUpdate(()=>{
+    if(ultline.power<0){
+        ultline.moveTo(width()*(ultline.power/(-1000)),offset.SHOOTER_POS.y);
+        ultline.power+=dt()*1000;
+    }
+    else{
+        ultline.moveTo(width()*(ultline.power/(1000)),offset.SHOOTER_POS.y);
+    }
+});
+
 
 onUpdate(shooterUpdate);
 
@@ -224,21 +269,49 @@ onUpdate(()=>{
         obj.EnemyUpdate(isFrozen);
         if(obj.gameObject.hp<=0){
             GetBuff(obj.gameObject.pos,obj.gameObject.buff);
+            let tmp=EffectPool.GetObject();
+            tmp.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(width(),rand()*height()),600,240);
+            wait(0.5,()=>{
+               EffectPool.DestroyObject(tmp);
+            });
+            let tmp2=EffectPool.GetObject();
+            tmp2.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(0,rand()*height()),600,240);
+            wait(0.5,()=>{
+               EffectPool.DestroyObject(tmp2);
+            });
+            //debug.log(String(tmp.poolId)+" "+String(tmp2.poolId));
             EnemyPool.DestroyObject(obj);
+            
         }
         if(obj.gameObject.pos.y>offset.SHOOTER_POS.y+20){
             //Fall
-            EnemyPool.DestroyObject(obj);
+            if(ultline.power<1000)
+                GameStateController(2);
+            else{
+                ultline.power=-ultline.power;
+                EnemyPool.Init();
+                ulticon.hidden=false;
+                ulticon.nowScale=0.1;
+            }
+            //EnemyPool.DestroyObject(obj);
         }
     })    
+})
+
+onUpdate(()=>{
+    if(gameState!=1) return;
+    EffectPool.forEach((obj)=>{
+        obj.EffectUpdate();
+    })
 })
 
 onUpdate(SpawnEnemy);
 
 onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
-    score++;
+    ++score;
     scoreTable.text=String(score);
+    if(ultline.power<1000) ++ultline.power;
     if(objB.area.shape=="circle")
     objA.towardVec=tmath.GetReflectionVector(
         objA.towardVec,
@@ -338,7 +411,7 @@ function SpawnEnemy(){
             if(chance(0.05)) buff=1;
             if(chance(0.05)) buff=2;
             if(chance(0.03)) buff=3;
-            if(chance(0.15)) buff=4;
+            if(chance(0.07)) buff=4;
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
         }else{
             spawnArr[i]--;
@@ -360,20 +433,23 @@ function GameStateController(state:number){
     switch(state){
         case 0:
             destroyAll("gameovermenu");
-            add([
+            let tmpbtn=add([
                 "startmenu",
                 text("start",{size:BUTTON_TEXT_SIZE}),
                 pos(center().x,center().y-100),
                 origin("center"),
                 area({shape:"rect"})
-            ]).onUpdate(()=>{
+            ])
+            wait(0.5,()=>{tmpbtn.onUpdate(()=>{
                 if(inputLock||isMouseDown()){
-                    debug.log('bg1');
+                    //debug.log('bg1');
                     GameStateController(1);
                 }
-            });
+            })});
             score=0;
             starCount=0;
+            diff=1;
+            
             //shooter.attack=1;
             //shooter.buttleNum=5;
         //FINISH 尝试销毁结算界面
@@ -388,6 +464,7 @@ function GameStateController(state:number){
         starIcon.hidden=false;
         starTable.hidden=false;
         menuBg.hidden=false;
+        ultline.hidden=false;
         //FINISH 显示HUB，GUI，shooter
             break;
         case 2:
@@ -397,6 +474,8 @@ function GameStateController(state:number){
         starIcon.hidden=true;
         starTable.hidden=true;
         menuBg.hidden=true;
+        ultline.hidden=true;
+        shooter.buttleNum=buttlePool.poolSize;
         buttlePool.Init();
         EnemyPool.Init();
         if(starCount>=101){
@@ -452,10 +531,10 @@ function GetBuff(pos:Vec2,type:number){
         case 4:
             starCount++;
             starTable.text=String(starCount);
-            let tmp=EffectPool.GetObject();
-            tmp.Init(pos,"star",offset.ENEMY_SCALE,vec2(30,20),1600);
+            let tmpstar=EffectPool.GetObject();
+            tmpstar.Init(pos,layersetting.MENU_LAYER,"star",offset.ENEMY_SCALE,vec2(30,20),800,0);
             wait(0.5,()=>{
-                EffectPool.DestroyObject(tmp);
+                EffectPool.DestroyObject(tmpstar);
             })
             break;
     }

@@ -11,7 +11,7 @@ export namespace pool{
         private objectPool:Array<T>; 
         private nullPtrHead:number;
         //private usedPtrHead:number;
-        private poolSize:number;
+        public poolSize:number;
         private tConstructor:new()=>T;
         public constructor(tmpc:new()=>T){
             this.tConstructor=tmpc;
