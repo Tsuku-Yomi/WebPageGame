@@ -5,7 +5,7 @@
 /// <reference path ="./lineoffset.ts" />
 /// <reference path ="layersetting.ts"/>
 
-import kaboom, { KaboomCtx, Vec2 } from "kaboom";
+import kaboom, { AudioPlay, KaboomCtx, Vec2 } from "kaboom";
 import { layersetting } from "./layersetting";
 import { offset } from "./lineoffset";
 import { pool } from "./pool";
@@ -118,10 +118,10 @@ let gameState=0;
 2->GAME_OVER
 3->GAME_PAUSE
 */
-const bgmusic=play("bgm",{loop:true});
-bgmusic.pause();
-const bobmusic=play("bob",);
-bobmusic.pause();
+var bgmusic:AudioPlay=null;
+//bgmusic.pause();
+var bobmusic:AudioPlay=null;
+
 const shooter=add(
     [
         "shooter",
@@ -447,6 +447,7 @@ function GameStateController(state:number){
     gameState=state;
     switch(state){
         case 0:
+            
             destroyAll("gameovermenu");
             let tmpbtn=add([
                 "startmenu",
@@ -470,6 +471,11 @@ function GameStateController(state:number){
 
             break;
         case 1:
+            if(bgmusic==null) bgmusic=play("bgm",{loop:true,volume:0.4});
+            if(bobmusic==null){
+                bobmusic=play("bob",{volume:2});
+                bobmusic.stop();
+            }
         bgmusic.play(0);
         destroyAll("startmenu");
         shooter.hidden=false;
@@ -532,7 +538,7 @@ function GameStateController(state:number){
 
 
 function GetBuff(pos:Vec2,type:number){
-    if(type!=0) bobmusic.play(0);
+    if(type!=0) play("bob",{volume:2});
     switch(type){
         case 1:
             shooter.attack++;
