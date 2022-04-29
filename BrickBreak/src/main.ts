@@ -79,6 +79,10 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
 })
 loadSprite("ulticon","/sprite/ulticon.png");
 loadSprite("ultline","/sprite/ultline.png");
+loadSprite("bg","/sprite/bg.png");
+loadSound("bgm","/music/bgm.mp3");
+loadSound("bob","/music/bob.wav");
+
 ///
 
 offset.InitOffset();
@@ -114,7 +118,10 @@ let gameState=0;
 2->GAME_OVER
 3->GAME_PAUSE
 */
-
+const bgmusic=play("bgm",{loop:true});
+bgmusic.pause();
+const bobmusic=play("bob",);
+bobmusic.pause();
 const shooter=add(
     [
         "shooter",
@@ -156,6 +163,15 @@ const scoreTable=add(
     ]
 );
 scoreTable.hidden=true;
+const bg=add(
+    [
+        pos(center()),
+        sprite("bg"),
+        origin("center"),
+        z(layersetting.BACKGROUND_LAYER)
+    ]
+)
+bg.hidden=false;
 let starIcon=add([
     "star",
     sprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,{anim:"star"}),
@@ -424,7 +440,6 @@ function SpawnEnemy(){
     midCooldown--;
     
 }
-//TODO
 
 
 function GameStateController(state:number){
@@ -449,15 +464,14 @@ function GameStateController(state:number){
             score=0;
             starCount=0;
             diff=1;
-            
+
             //shooter.attack=1;
             //shooter.buttleNum=5;
-        //FINISH 尝试销毁结算界面
-        //FINISH 生成主页按钮
+
             break;
         case 1:
+        bgmusic.play(0);
         destroyAll("startmenu");
-        //FINISH 尝试销毁主页按钮
         shooter.hidden=false;
         aimLine.hidden=false;
         scoreTable.hidden=false;
@@ -465,9 +479,9 @@ function GameStateController(state:number){
         starTable.hidden=false;
         menuBg.hidden=false;
         ultline.hidden=false;
-        //FINISH 显示HUB，GUI，shooter
             break;
         case 2:
+        bgmusic.pause();
         shooter.hidden=true;
         aimLine.hidden=true;
         scoreTable.hidden=true;
@@ -481,9 +495,11 @@ function GameStateController(state:number){
         if(starCount>=101){
             let tmp=add([
                 "gameovermenu",
-                text("YOU WIN!! YOUR SCORE:"+String(score),{size:72}),
+                text("YOU WIN!!\nYOUR SCORE:"+String(score),{size:36}),
                 origin("center"),
                 pos(center()),
+                z(layersetting.MENU_LAYER),
+                scale(offset.ENEMY_SCALE),
             ])
             wait(1,()=>{
                 tmp.onUpdate(()=>{if(inputLock||isMouseDown()){
@@ -495,9 +511,11 @@ function GameStateController(state:number){
         }else{
             let tmp=add([
                 "gameovermenu",
-                text("YOU LOSE,touch to try again,YOUR SCORE:"+String(score),{size:72}),
+                text("YOU LOSE,\ntouch to try again,\nYOUR SCORE:"+String(score),{size:36,}),
                 origin("center"),
                 pos(center()),
+                z(layersetting.MENU_LAYER),
+                scale(offset.ENEMY_SCALE),
             ])
             wait(1,()=>{
                 tmp.onUpdate(()=>{if(inputLock||isMouseDown()){
@@ -512,9 +530,9 @@ function GameStateController(state:number){
     }
 }
 
-//TODO 特效
 
 function GetBuff(pos:Vec2,type:number){
+    if(type!=0) bobmusic.play(0);
     switch(type){
         case 1:
             shooter.attack++;
@@ -536,6 +554,7 @@ function GetBuff(pos:Vec2,type:number){
             wait(0.5,()=>{
                 EffectPool.DestroyObject(tmpstar);
             })
+            if(starCount>=101) GameStateController(2);
             break;
     }
 }
