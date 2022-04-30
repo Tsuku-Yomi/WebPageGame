@@ -61,7 +61,7 @@ loadSprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,"/sprite/bufficon.png",{
     }
 });
 loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
-    sliceX:3,anims:{
+    sliceX:7,anims:{
         empty:{
             from:0,
             to:0
@@ -73,8 +73,12 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
         star:{
             from:2,
             to:2
+        },
+        sp:{
+            from:3,
+            to:6,
+            speed:2,
         }
-
     }
 })
 loadSprite("ulticon","/sprite/ulticon.png");
@@ -286,15 +290,15 @@ onUpdate(()=>{
         if(obj.gameObject.hp<=0){
             GetBuff(obj.gameObject.pos,obj.gameObject.buff);
             let tmp=EffectPool.GetObject();
-            tmp.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(width(),rand()*height()),600,240);
+            tmp.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE/1.3,vec2(width()*randi(0,2),rand()*height()),600,240);
             wait(0.5,()=>{
                EffectPool.DestroyObject(tmp);
             });
-            let tmp2=EffectPool.GetObject();
-            tmp2.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(0,rand()*height()),600,240);
-            wait(0.5,()=>{
-               EffectPool.DestroyObject(tmp2);
-            });
+            // let tmp2=EffectPool.GetObject();
+            // tmp2.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(0,rand()*height()),600,240);
+            // wait(0.5,()=>{
+            //    EffectPool.DestroyObject(tmp2);
+            // });
             //debug.log(String(tmp.poolId)+" "+String(tmp2.poolId));
             EnemyPool.DestroyObject(obj);
             
@@ -424,8 +428,8 @@ function SpawnEnemy(){
     for(let i=0;i<offset.SETTING_LINE_NUM;++i){
         if(spawnArr[i]<=0&&chance(0.8)){
             let buff=0;
-            if(chance(0.05)) buff=1;
-            if(chance(0.05)) buff=2;
+            if(chance(0.03)) buff=1;
+            if(chance(0.03)) buff=2;
             if(chance(0.03)) buff=3;
             if(chance(0.07)) buff=4;
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
@@ -487,7 +491,7 @@ function GameStateController(state:number){
         ultline.hidden=false;
             break;
         case 2:
-        bgmusic.pause();
+        //bgmusic.pause();
         shooter.hidden=true;
         aimLine.hidden=true;
         scoreTable.hidden=true;

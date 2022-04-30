@@ -130,7 +130,7 @@ export namespace prefab{
                 origin("center"),
                 sprite(Enemy.ENEMY_EFFECT_SPRITE_ID),
                 text("1",{
-                    size:28
+                    size:48
                 }),
                 z(layersetting.HUB_LAYER),
             ]
@@ -176,7 +176,7 @@ export namespace prefab{
             }
             this.gameObjectEffect.play(tmpstring);
             this.gameObject.scaleTo(size*offset.ENEMY_SCALE);
-            this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE);
+            this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE/2);
             this.gameObjectEffect.hidden=false;
             this.gameObject.hidden=false;
             this.gameObjectEffect.pos=pos;
@@ -214,7 +214,7 @@ export namespace prefab{
                 rotate(0),
                 origin("center"),
                 z(layersetting.MENU_LAYER),
-                color(255,0,0),
+                //color(255,0,0),
             ]
         )
 
