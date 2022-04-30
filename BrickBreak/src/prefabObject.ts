@@ -169,7 +169,7 @@ export namespace prefab{
                     tmpstring='frozen';
                     break;
                 case 4:
-                    tmpstring='star';
+                    tmpstring='empty';
                     break;
                 default:
                     tmpstring='empty';

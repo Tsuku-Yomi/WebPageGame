@@ -77,16 +77,16 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
         sp:{
             from:3,
             to:6,
-            speed:2,
+            speed:1,
         }
     }
 })
 loadSprite("ulticon","/sprite/ulticon.png");
-loadSprite("ultline","/sprite/ultline.png");
+loadSprite("ultline","/sprite/ultline2.png");
 loadSprite("bg","/sprite/bg.png");
+loadSprite("title","/sprite/title.png");
 loadSound("bgm","/music/bgm.mp3");
 loadSound("bob","/music/bob.wav");
-
 ///
 
 offset.InitOffset();
@@ -96,7 +96,7 @@ var SHOOTER_COLD_DOWN=0.1;
 var BIG_ENEMY_COLD_DOWN=10;
 var MID_ENEMY_COLD_DOWN=3;
 var SUM_COLD_DOWN=3;
-var FROZEN_TIME=2;
+var FROZEN_TIME=4;
 
 
 let diff=1;
@@ -176,6 +176,12 @@ const bg=add(
     ]
 )
 bg.hidden=false;
+let bgmovfac=20;
+bg.onUpdate(()=>{
+    if(bg.pos.x>1200) bgmovfac=-Math.abs(bgmovfac);
+    if(bg.pos.x<-1200) bgmovfac=Math.abs(bgmovfac); 
+    bg.pos.x+=bgmovfac*dt();
+});
 let starIcon=add([
     "star",
     sprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,{anim:"star"}),
@@ -230,9 +236,9 @@ let ultline=add([
     sprite("ultline"),
     pos(0,offset.SHOOTER_POS.y),
     origin("right"),
+    scale(vec2(offset.UTL_LINE_SCALE,1)),
     {
         power:0,
-
     }
 ])
 ultline.hidden=true;
@@ -290,7 +296,7 @@ onUpdate(()=>{
         if(obj.gameObject.hp<=0){
             GetBuff(obj.gameObject.pos,obj.gameObject.buff);
             let tmp=EffectPool.GetObject();
-            tmp.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE/1.3,vec2(width()*randi(0,2),rand()*height()),600,240);
+            tmp.Init(obj.gameObject.pos,layersetting.EFFECT_LAYER,"piece",offset.ENEMY_SCALE/2,vec2(width()*randi(0,2),rand()*height()),600,240);
             wait(0.5,()=>{
                EffectPool.DestroyObject(tmp);
             });
@@ -301,6 +307,9 @@ onUpdate(()=>{
             // });
             //debug.log(String(tmp.poolId)+" "+String(tmp2.poolId));
             EnemyPool.DestroyObject(obj);
+
+
+
             
         }
         if(obj.gameObject.pos.y>offset.SHOOTER_POS.y+20){
@@ -312,6 +321,13 @@ onUpdate(()=>{
                 EnemyPool.Init();
                 ulticon.hidden=false;
                 ulticon.nowScale=0.1;
+                for(let i=0;i<10;++i){
+                    let tmp=EffectPool.GetObject();
+                    tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(200,500),120);
+                    wait(10,()=>{
+                        EffectPool.DestroyObject(tmp);
+                    })
+                }
             }
             //EnemyPool.DestroyObject(obj);
         }
@@ -428,9 +444,9 @@ function SpawnEnemy(){
     for(let i=0;i<offset.SETTING_LINE_NUM;++i){
         if(spawnArr[i]<=0&&chance(0.8)){
             let buff=0;
-            if(chance(0.03)) buff=1;
-            if(chance(0.03)) buff=2;
-            if(chance(0.03)) buff=3;
+            if(chance(0.035)) buff=1;
+            if(chance(0.035)) buff=2;
+            if(chance(0.035)) buff=3;
             if(chance(0.07)) buff=4;
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
         }else{
@@ -447,19 +463,25 @@ function SpawnEnemy(){
 
 
 function GameStateController(state:number){
-    const BUTTON_TEXT_SIZE=28;
+    const BUTTON_TEXT_SIZE=36;
     gameState=state;
     switch(state){
         case 0:
-            
             destroyAll("gameovermenu");
             let tmpbtn=add([
                 "startmenu",
                 text("start",{size:BUTTON_TEXT_SIZE}),
-                pos(center().x,center().y-100),
+                pos(center().x,center().y+100),
                 origin("center"),
                 area({shape:"rect"})
             ])
+            let tmptitle=add([
+                "startmenu",
+                sprite("title"),
+                origin("center"),
+                pos(center().x,center().y-100),
+            ])
+            tmptitle.hidden=false;
             wait(0.5,()=>{tmpbtn.onUpdate(()=>{
                 if(inputLock||isMouseDown()){
                     //debug.log('bg1');
@@ -521,7 +543,7 @@ function GameStateController(state:number){
         }else{
             let tmp=add([
                 "gameovermenu",
-                text("YOU LOSE,\ntouch to try again,\nYOUR SCORE:"+String(score),{size:36,}),
+                text("YOU LOSE,\nyour attack power will keep\ntouch to try again,\nYOUR SCORE:"+String(score),{size:36,}),
                 origin("center"),
                 pos(center()),
                 z(layersetting.MENU_LAYER),
@@ -559,11 +581,12 @@ function GetBuff(pos:Vec2,type:number){
         case 4:
             starCount++;
             starTable.text=String(starCount);
-            let tmpstar=EffectPool.GetObject();
-            tmpstar.Init(pos,layersetting.MENU_LAYER,"star",offset.ENEMY_SCALE,vec2(30,20),800,0);
-            wait(0.5,()=>{
-                EffectPool.DestroyObject(tmpstar);
-            })
+            // backup,star effect by fku
+            // let tmpstar=EffectPool.GetObject();
+            // tmpstar.Init(pos,layersetting.MENU_LAYER,"empty",offset.ENEMY_SCALE,vec2(30,20),800,0);
+            // wait(0.5,()=>{
+            //     EffectPool.DestroyObject(tmpstar);
+            // })
             if(starCount>=101) GameStateController(2);
             break;
     }

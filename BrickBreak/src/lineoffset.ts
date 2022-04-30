@@ -1,10 +1,10 @@
 export namespace offset{
     export const SETTING_LINE_SIZE_WITH_SCREEN=1;
     export const SETTING_LINE_NUM=7;
-    export const SETTING_SHOOTER_DISTANCE_FRONT=0.15;
+    export const SETTING_SHOOTER_DISTANCE_FRONT=0.1;
     export const SETTING_ENEMY_SCALE_BLOCK=0.96;
     export const SETTING_SPRITE_WIDTH=64;        
-    export const SETTING_ENEMY_SHOW_LINE=0.15;
+    export const SETTING_ENEMY_SHOW_LINE=0.1;
     export const SETTING_TIME_BLOCK_DROP=12;
 
 
@@ -17,9 +17,10 @@ export namespace offset{
     export var BALL_RECYCLE_LINE;
     export var ENEMY_SCALE;
     export var ENEMY_DROP_SPEED;
-    
+    export var UTL_LINE_SCALE;
+
+
     //start->zero
-    // TODO fix pos
     export function GetSpawnPos(x:number,size:number){
         return vec2(
             ZERO_LINE_OFFSET+x*LINE_WIDTH+LINE_WIDTH*size/2,
@@ -36,6 +37,7 @@ export namespace offset{
         ENEMY_SCALE=SETTING_ENEMY_SCALE_BLOCK*LINE_WIDTH/SETTING_SPRITE_WIDTH;
         ENEMY_DROP_SPEED=(height()-height()*SETTING_ENEMY_SHOW_LINE-height()*SETTING_SHOOTER_DISTANCE_FRONT)/SETTING_TIME_BLOCK_DROP;
         SPAWN_COLD_DOWN=LINE_WIDTH/ENEMY_DROP_SPEED;
+        UTL_LINE_SCALE=width()/350;
         //debug.log(String(ENEMY_SCALE));
     }
 }
