@@ -77,7 +77,8 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
         sp:{
             from:3,
             to:6,
-            speed:1,
+            speed:0.5,
+            loop:true
         }
     }
 })
@@ -160,10 +161,10 @@ const scoreTable=add(
     [
         "score",
         text("0",{
-            size:28
+            size:16
         }),
         origin("bot"),
-        pos(center().x,offset.ENEMY_SHOW_LINE-10),
+        pos(center().x,offset.ENEMY_SHOW_LINE*0.9),
         z(layersetting.MENU_LAYER)
     ]
 );
@@ -179,8 +180,8 @@ const bg=add(
 bg.hidden=false;
 let bgmovfac=20;
 bg.onUpdate(()=>{
-    if(bg.pos.x>1200) bgmovfac=-Math.abs(bgmovfac);
-    if(bg.pos.x<-1200) bgmovfac=Math.abs(bgmovfac); 
+    if(bg.pos.x>1000) bgmovfac=-Math.abs(bgmovfac);
+    if(bg.pos.x<-1000) bgmovfac=Math.abs(bgmovfac); 
     bg.pos.x+=bgmovfac*dt();
 });
 let starIcon=add([
@@ -239,17 +240,17 @@ let ultline=add([
     origin("right"),
     scale(vec2(offset.UTL_LINE_SCALE,1)),
     {
-        power:0,
+        power:500,
     }
 ])
 ultline.hidden=true;
 ultline.onUpdate(()=>{
     if(ultline.power<0){
-        ultline.moveTo(width()*(ultline.power/(-1000)),offset.SHOOTER_POS.y);
-        ultline.power+=dt()*1000;
+        ultline.moveTo(width()*(ultline.power/(-500)),offset.SHOOTER_POS.y);
+        ultline.power+=dt()*500;
     }
     else{
-        ultline.moveTo(width()*(ultline.power/(1000)),offset.SHOOTER_POS.y);
+        ultline.moveTo(width()*(ultline.power/(500)),offset.SHOOTER_POS.y);
     }
 });
 
@@ -315,7 +316,7 @@ onUpdate(()=>{
         }
         if(obj.gameObject.pos.y>offset.SHOOTER_POS.y+20){
             //Fall
-            if(ultline.power<1000)
+            if(ultline.power<500)
                 GameStateController(2);
             else{
                 ultline.power=-ultline.power;
@@ -324,8 +325,8 @@ onUpdate(()=>{
                 ulticon.nowScale=0.1;
                 for(let i=0;i<10;++i){
                     let tmp=EffectPool.GetObject();
-                    tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(200,500),120);
-                    wait(10,()=>{
+                    tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(50,150),60);
+                    wait(15,()=>{
                         EffectPool.DestroyObject(tmp);
                     })
                 }
@@ -348,7 +349,7 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
     ++score;
     scoreTable.text=String(score);
-    if(ultline.power<1000) ++ultline.power;
+    if(ultline.power<500) ++ultline.power;
     if(objB.area.shape=="circle")
     objA.towardVec=tmath.GetReflectionVector(
         objA.towardVec,
@@ -445,9 +446,9 @@ function SpawnEnemy(){
     for(let i=0;i<offset.SETTING_LINE_NUM;++i){
         if(spawnArr[i]<=0&&chance(0.8)){
             let buff=0;
-            if(chance(0.035)) buff=1;
-            if(chance(0.035)) buff=2;
-            if(chance(0.035)) buff=3;
+            if(chance(0.03)) buff=1;
+            if(chance(0.03)) buff=2;
+            if(chance(0.03)) buff=3;
             if(chance(0.07)) buff=4;
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
         }else{
@@ -474,14 +475,15 @@ function GameStateController(state:number){
                 text("start",{size:BUTTON_TEXT_SIZE}),
                 pos(center().x,center().y+100),
                 origin("center"),
-                area({shape:"rect"})
+                area({shape:"rect"}),
             ])
             let tmptitle=add([
                 "startmenu",
                 sprite("title"),
-                scale(0.2),
+                scale(0.4),
                 origin("center"),
-                pos(center().x,center().y-200),
+                pos(center()),
+                z(10)
             ])
             tmptitle.hidden=false;
             wait(0.5,()=>{tmpbtn.onUpdate(()=>{
@@ -545,7 +547,7 @@ function GameStateController(state:number){
         }else{
             let tmp=add([
                 "gameovermenu",
-                text("YOU LOSE,\nyour attack power will keep\ntouch to try again,\nYOUR SCORE:"+String(score),{size:36,}),
+                text("YOU LOSE,\ntouch to try again,\nYOUR SCORE:"+String(score),{size:32,}),
                 origin("center"),
                 pos(center()),
                 z(layersetting.MENU_LAYER),
