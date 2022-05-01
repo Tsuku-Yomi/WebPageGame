@@ -11,6 +11,11 @@ import { tmath } from "./tmath";
 
 declare let origin:KaboomCtx['origin'];
 
+
+type Randi = ((n: number) =>  number) | ((a: number, b: number) => number)
+
+declare let randi: Randi
+
 export namespace prefab{
 
 
@@ -147,36 +152,32 @@ export namespace prefab{
 
         public Init(hp:number,pos:Vec2,areaType:Shape,size:number,buff?:number):void{
             if(areaType=='circle'){
-                this.gameObject.play("cir");
+                this.gameObject.play("cir1");
                 this.gameObject.area.shape="circle";
             }else{
-                this.gameObject.play("rect");
+                this.gameObject.play("rect1");
                 this.gameObject.area.shape="rect";
             }
             this.gameObject.buff=buff;
             let tmpstring:string;
             switch(buff){
-                case 0:
-                    tmpstring='empty';
-                    break;
                 case 1:
-                    tmpstring='attackup';
+                    tmpstring='cir2';
                     break;
                 case 2:
-                    tmpstring='buttlenumup';
+                    tmpstring='cir3';
                     break;
                 case 3:
-                    tmpstring='frozen';
+                    tmpstring='rect2';
                     break;
                 case 4:
-                    tmpstring='empty';
+                    tmpstring='rect3';
                     break;
-                default:
-                    tmpstring='empty';
             }
-            this.gameObjectEffect.play(tmpstring);
-            this.gameObject.scaleTo(size*offset.ENEMY_SCALE);
-            this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE/2);
+            if(buff>0&&buff<4) this.gameObject.play(tmpstring);
+            this.gameObjectEffect.play("empty");
+            this.gameObject.scaleTo(size*offset.ENEMY_SCALE/4);
+            this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE/1.3);
             this.gameObjectEffect.hidden=false;
             this.gameObject.hidden=false;
             this.gameObjectEffect.pos=pos;

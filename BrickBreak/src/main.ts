@@ -24,17 +24,33 @@ const AIMLINE_SPRITE_ID="cnoenrcvhuo";
 
 //Spirte load 
 loadSprite(prefab.Buttle.BULLTE_SPRITE_ID,"/sprite/buttle.png");
-loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,anims:{
-    cir:{
+loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:3,anims:{
+    cir1:{
         from:0,
         to:0
     },
-    rect:{
+    rect1:{
         from:1,
         to:1
-    }
+    },
+    cir2:{
+        from:2,
+        to:2
+    },
+    rect2:{
+        from:3,
+        to:3
+    },
+    cir3:{
+        from:4,
+        to:4
+    },
+    rect3:{
+        from:5,
+        to:5
+    },
 }});
-loadSprite(SHOOTER_SPRITE_ID,"/sprite/shooter.png");
+loadSprite(SHOOTER_SPRITE_ID,"/sprite/shooterbig.png");
 loadSprite(AIMLINE_SPRITE_ID,"/sprite/aimline.png");
 loadSprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,"/sprite/bufficon.png",{
     sliceX:5,anims:{
@@ -82,10 +98,31 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
         }
     }
 })
-loadSprite("ulticon","/sprite/ulticon.png");
+loadSprite("ulticon","/sprite/ulticon.png",{
+    sliceX:2,
+    anims:{
+        img1:{
+            from:0,
+            to:0
+        },
+        img2:{
+            from:1,
+            to:1
+        }
+    }
+});
 loadSprite("ultline","/sprite/ultline2.png");
+//2022年5月1日19:55:40 "ultline"
+loadSprite("ultlinenow","/sprite/ultlinenow.png");
+loadSprite("ultlinelayer","/sprite/ultlinenow2.png");
+loadSprite("ultlinebg","/sprite/ultlinebg.png");
+//
+//2022年5月1日21:24:20
+loadSprite("cow","/sprite/cow.png");
+//
 loadSprite("bg","/sprite/bg.jpg");
 loadSprite("title","/sprite/title.png");
+loadSprite("star","/sprite/xh.png");
 loadSprite("banner","/sprite/banner.png");
 loadSound("bgm","/music/bgm.mp3");
 loadSound("bob","/music/bob.wav");
@@ -133,7 +170,7 @@ const shooter=add(
         "shooter",
         sprite(SHOOTER_SPRITE_ID),
         pos(offset.SHOOTER_POS),
-        scale(offset.ENEMY_SCALE),
+        scale(offset.ENEMY_SCALE/2),
         rotate(90),
         origin("center"),
         text("",{size:28}),
@@ -165,7 +202,7 @@ const scoreTable=add(
         }),
         origin("bot"),
         pos(center().x,offset.ENEMY_SHOW_LINE*0.9),
-        z(layersetting.MENU_LAYER)
+        z(-10)
     ]
 );
 scoreTable.hidden=true;
@@ -178,7 +215,7 @@ const bg=add(
     ]
 )
 bg.hidden=false;
-let bgmovfac=20;
+let bgmovfac=10;
 bg.onUpdate(()=>{
     if(bg.pos.x>1000) bgmovfac=-Math.abs(bgmovfac);
     if(bg.pos.x<-1000) bgmovfac=Math.abs(bgmovfac); 
@@ -186,18 +223,18 @@ bg.onUpdate(()=>{
 });
 let starIcon=add([
     "star",
-    sprite(prefab.Enemy.ENEMY_EFFECT_SPRITE_ID,{anim:"star"}),
+    sprite("star"),
     origin("topleft"),
-    scale(0.5),
-    pos(20,10),
+    scale((offset.ENEMY_SHOW_LINE-6)/256),
+    pos(3,3),
     z(layersetting.MENU_LAYER),
 ])
 starIcon.hidden=true;
 let starTable=add([
     "star",
     text("0",{size:28}),
-    origin("topleft"),
-    pos(20,60),
+    origin("center"),
+    pos(center().x,offset.ENEMY_SHOW_LINE/2),
     z(layersetting.MENU_LAYER)
 ]);
 starTable.hidden=true;
@@ -205,19 +242,20 @@ let menuBg=add([
     "gamemenu",
     //color(0,0,0),
     sprite("banner"),
-    scale(offset.ENEMY_SHOW_LINE/280),
+    scale(10),
     origin("bot"),
     pos(center().x,offset.ENEMY_SHOW_LINE),
     z(layersetting.MENU_BACKGROUND_LAYER)
 ]);
 menuBg.hidden=true;
 let ulticon=add([
-    sprite("ulticon"),
+    sprite("ulticon",{anim:"img2"}),
     scale(1),
     pos(center()),
     origin("center"),
     z(layersetting.MENU_LAYER),
     {
+        nowAnim:1,
         nowScale:0.1,
     }
 ]);
@@ -225,7 +263,10 @@ ulticon.hidden=true;
 ulticon.onUpdate(()=>{
     if(ulticon.hidden) return;
     if(ulticon.nowScale>1.5){
-        wait(0.5,()=>{ulticon.hidden=true;}) 
+        wait(1.5,()=>{ulticon.hidden=true;
+            ulticon.play("img"+String(ulticon.nowAnim));
+            ulticon.nowAnim=(ulticon.nowAnim%2)+1;
+        }) 
         ulticon.nowScale=-1;
     }    
     else if(ulticon.nowScale>0){
@@ -234,23 +275,59 @@ ulticon.onUpdate(()=>{
     }
     //debug.log(String(ulticon.scale));
 });
+let ultStartX=width()/5;
 let ultline=add([
-    sprite("ultline"),
-    pos(0,offset.SHOOTER_POS.y),
-    origin("right"),
-    scale(vec2(offset.UTL_LINE_SCALE,1)),
+    sprite("ultlinenow"),
+    pos(vec2(ultStartX,height())),
+    origin("botleft"),
+    scale(offset.UTL_LINE_SCALE),
     {
         power:500,
     }
+    ,z(layersetting.MENU_LAYER)
+])
+let ultlinebg=add([
+    "gaming",
+    sprite("ultlinebg"),
+    origin("bot"),
+    pos(vec2(center().x,height())),
+    scale(offset.UTL_LINE_SCALE),
+    z(layersetting.MENU_BACKGROUND_LAYER)
+])
+let cowIcon=add([
+    "gaming",
+    sprite("cow"),
+    origin("topright"),
+    pos(vec2(width()-3,3)), 
+    scale((offset.ENEMY_SHOW_LINE-6)/256),
+    z(layersetting.MENU_LAYER)
+])
+let ulttext=add([
+    "gaming",
+    text("sotired",{size:72}),
+    origin("botleft"),
+    pos(vec2(0,height())),
+    scale(offset.UTL_LINE_SCALE),
+    z(layersetting.MENU_LAYER),
+])
+let ultlinelayer=add([
+    "gaming",
+    origin("botleft"),
+    sprite("ultlinelayer"),
+    pos(vec2(ultStartX,height())),
+    z(6),
+    scale(offset.UTL_LINE_SCALE),
 ])
 ultline.hidden=true;
 ultline.onUpdate(()=>{
     if(ultline.power<0){
-        ultline.moveTo(width()*(ultline.power/(-500)),offset.SHOOTER_POS.y);
+        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(-500)),height());
+        ulttext.text=String(Math.floor(ultline.power/(-5)))+"%";
         ultline.power+=dt()*500;
     }
     else{
-        ultline.moveTo(width()*(ultline.power/(500)),offset.SHOOTER_POS.y);
+        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(500)),height());
+        ulttext.text=String(Math.floor(ultline.power/(5)))+"%";
     }
 });
 
@@ -323,13 +400,13 @@ onUpdate(()=>{
                 EnemyPool.Init();
                 ulticon.hidden=false;
                 ulticon.nowScale=0.1;
-                for(let i=0;i<10;++i){
-                    let tmp=EffectPool.GetObject();
-                    tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(50,150),60);
-                    wait(15,()=>{
-                        EffectPool.DestroyObject(tmp);
-                    })
-                }
+                // for(let i=0;i<10;++i){
+                //     let tmp=EffectPool.GetObject();
+                //     tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(50,150),60);
+                //     wait(15,()=>{
+                //         EffectPool.DestroyObject(tmp);
+                //     })
+                // }
             }
             //EnemyPool.DestroyObject(obj);
         }
@@ -350,6 +427,13 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
     ++score;
     scoreTable.text=String(score);
     if(ultline.power<500) ++ultline.power;
+    else {
+        ultline.power=-ultline.power;
+        EnemyPool.Init();
+        ulticon.hidden=false;
+        ulticon.nowScale=0.1;
+        return;
+    }
     if(objB.area.shape=="circle")
     objA.towardVec=tmath.GetReflectionVector(
         objA.towardVec,
@@ -469,6 +553,9 @@ function GameStateController(state:number){
     gameState=state;
     switch(state){
         case 0:
+            every("gaming",(obj)=>{
+                obj.hidden=true;
+            })
             destroyAll("gameovermenu");
             let tmpbtn=add([
                 "startmenu",
@@ -480,7 +567,7 @@ function GameStateController(state:number){
             let tmptitle=add([
                 "startmenu",
                 sprite("title"),
-                scale(0.4),
+                scale(0.41),
                 origin("center"),
                 pos(center()),
                 z(10)
@@ -501,6 +588,9 @@ function GameStateController(state:number){
 
             break;
         case 1:
+            every("gaming",(obj)=>{
+                obj.hidden=false;
+            })
             if(bgmusic==null) bgmusic=play("bgm",{loop:true,volume:0.4});
             if(bobmusic==null){
                 bobmusic=play("bob",{volume:2});
@@ -517,7 +607,11 @@ function GameStateController(state:number){
         ultline.hidden=false;
             break;
         case 2:
+            every("gaming",(obj)=>{
+                obj.hidden=true;
+            })
         //bgmusic.pause();
+        starTable.text='0';
         shooter.hidden=true;
         aimLine.hidden=true;
         scoreTable.hidden=true;

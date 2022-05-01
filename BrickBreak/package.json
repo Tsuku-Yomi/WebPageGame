@@ -15,7 +15,8 @@
   
   "scripts": {
     "build": "vite build",
-    "dev":"vite --host"
+    "dev":"vite --host",
+    "preview":"vite preview"
   },
   "author": "",
   "license": "ISC"
