@@ -85,6 +85,7 @@ loadSprite("ulticon","/sprite/ulticon.png");
 loadSprite("ultline","/sprite/ultline2.png");
 loadSprite("bg","/sprite/bg.png");
 loadSprite("title","/sprite/title.png");
+loadSprite("banner","/sprite/banner.png");
 loadSound("bgm","/music/bgm.mp3");
 loadSound("bob","/music/bob.wav");
 ///
@@ -161,8 +162,8 @@ const scoreTable=add(
         text("0",{
             size:28
         }),
-        origin("top"),
-        pos(center().x,10),
+        origin("bot"),
+        pos(center().x,offset.ENEMY_SHOW_LINE-10),
         z(layersetting.MENU_LAYER)
     ]
 );
@@ -201,9 +202,9 @@ let starTable=add([
 starTable.hidden=true;
 let menuBg=add([
     "gamemenu",
-    color(0,0,0),
-    sprite(prefab.Effect.EFFECT_SPRITE_ID,{anim:"piece"}),
-    scale(10),
+    //color(0,0,0),
+    sprite("banner"),
+    scale(offset.ENEMY_SHOW_LINE/280),
     origin("bot"),
     pos(center().x,offset.ENEMY_SHOW_LINE),
     z(layersetting.MENU_BACKGROUND_LAYER)
@@ -478,8 +479,9 @@ function GameStateController(state:number){
             let tmptitle=add([
                 "startmenu",
                 sprite("title"),
+                scale(0.2),
                 origin("center"),
-                pos(center().x,center().y-100),
+                pos(center().x,center().y-200),
             ])
             tmptitle.hidden=false;
             wait(0.5,()=>{tmpbtn.onUpdate(()=>{
