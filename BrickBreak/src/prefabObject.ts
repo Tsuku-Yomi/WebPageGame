@@ -153,10 +153,10 @@ export namespace prefab{
 
         public Init(hp:number,pos:Vec2,areaType:Shape,size:number,buff?:number):void{
             if(areaType=='circle'){
-                this.gameObject.play("cir1");
+                this.gameObject.play("n"+randi(0,3));
                 this.gameObject.area.shape="circle";
             }else{
-                this.gameObject.play("cir3");
+                this.gameObject.play("n"+randi(3,6));
                 this.gameObject.area.shape="rect";
             }
             this.gameObject.buff=buff;
@@ -175,7 +175,7 @@ export namespace prefab{
                     tmpstring='rect3';
                     break;
             }
-            if(buff>0&&buff<4) this.gameObject.play(tmpstring);
+            if(buff>0&&buff<=4) this.gameObject.play(tmpstring);
             this.gameObjectEffect.play("empty");
             this.gameObject.scaleTo(size*offset.ENEMY_SCALE/4);
             this.gameObjectEffect.scaleTo(size*offset.ENEMY_SCALE/1.3);

@@ -24,8 +24,8 @@ const AIMLINE_SPRITE_ID="cnoenrcvhuo";
 
 //Spirte load 
 loadSprite(prefab.Buttle.BULLTE_SPRITE_ID,"/sprite/buttle.png");
-loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:3,anims:{
-    cir1:{
+loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:5,anims:{
+    n0:{
         from:0,
         to:0
     },
@@ -41,7 +41,7 @@ loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:3,a
         from:3,
         to:3
     },
-    cir3:{
+    n1:{
         from:4,
         to:4
     },
@@ -49,6 +49,22 @@ loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:3,a
         from:5,
         to:5
     },
+    n2:{
+        from:6,
+        to:6
+    },
+    n3:{
+        from:7,
+        to:7
+    },
+    n4:{
+        from:8,
+        to:8
+    },
+    n5:{
+        from:9,
+        to:9
+    }
 }});
 loadSprite(SHOOTER_SPRITE_ID,"/sprite/shooterbig.png");
 loadSprite(AIMLINE_SPRITE_ID,"/sprite/aimline.png");
@@ -120,6 +136,8 @@ loadSprite("ultlinebg","/sprite/ultlinebg.png");
 //2022年5月1日21:24:20
 loadSprite("cow","/sprite/cow.png");
 //
+//2022年5月2日07:27:29
+loadSprite("tut","/sprite/tut.png");
 loadSprite("bg","/sprite/bg.jpg");
 loadSprite("title","/sprite/title.png");
 loadSprite("star","/sprite/xh.png");
@@ -225,16 +243,24 @@ let starIcon=add([
     "star",
     sprite("star"),
     origin("topleft"),
-    scale((offset.ENEMY_SHOW_LINE-6)/256),
-    pos(3,3),
+    scale((offset.ENEMY_SHOW_LINE-40)/256),
+    pos(5,20),
     z(layersetting.MENU_LAYER),
 ])
 starIcon.hidden=true;
+let tutorial=add([
+    "gaming",
+    origin("topright"),
+    sprite("tut"),
+    scale(0.3),
+    z(layersetting.MENU_LAYER),
+    pos(width()-20,offset.ENEMY_SHOW_LINE*0.12),
+])
 let starTable=add([
     "star",
-    text("0",{size:28}),
-    origin("center"),
-    pos(center().x,offset.ENEMY_SHOW_LINE/2),
+    text("0",{size:40}),
+    origin("bot"),
+    pos(center().x,offset.ENEMY_SHOW_LINE),
     z(layersetting.MENU_LAYER)
 ]);
 starTable.hidden=true;
@@ -295,13 +321,14 @@ let ultlinebg=add([
     z(layersetting.MENU_BACKGROUND_LAYER)
 ])
 let cowIcon=add([
-    "gaming",
+    //"gaming",
     sprite("cow"),
     origin("topright"),
-    pos(vec2(width()-3,3)), 
-    scale((offset.ENEMY_SHOW_LINE-6)/256),
+    pos(vec2(width()-10,10)), 
+    scale((offset.ENEMY_SHOW_LINE-20)/256),
     z(layersetting.MENU_LAYER)
 ])
+cowIcon.hidden=true;
 let ulttext=add([
     "gaming",
     text("sotired",{size:72}),
@@ -422,10 +449,14 @@ onUpdate(()=>{
 
 onUpdate(SpawnEnemy);
 
+onKeyPress("k",()=>{
+    isFrozen=!isFrozen;
+})
+
 onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
     ++score;
-    scoreTable.text=String(score);
+    scoreTable.text=String(score)+"00";
     if(ultline.power<500) ++ultline.power;
     else {
         ultline.power=-ultline.power;
@@ -668,7 +699,7 @@ function GetBuff(pos:Vec2,type:number){
             shooter.attack++;
             break;
         case 2:
-            shooter.buttleNum++;
+            shooter.buttleNum+=5;
             break;
         case 3:
             isFrozen=true;
