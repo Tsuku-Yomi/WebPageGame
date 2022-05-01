@@ -131,6 +131,7 @@ export namespace prefab{
         public gameObjectEffect=add(
             [
                 pos(),
+                color(90,256,90),
                 scale(offset.ENEMY_SCALE),
                 origin("center"),
                 sprite(Enemy.ENEMY_EFFECT_SPRITE_ID),
@@ -155,7 +156,7 @@ export namespace prefab{
                 this.gameObject.play("cir1");
                 this.gameObject.area.shape="circle";
             }else{
-                this.gameObject.play("rect1");
+                this.gameObject.play("cir3");
                 this.gameObject.area.shape="rect";
             }
             this.gameObject.buff=buff;
@@ -165,7 +166,7 @@ export namespace prefab{
                     tmpstring='cir2';
                     break;
                 case 2:
-                    tmpstring='cir3';
+                    tmpstring='rect1';
                     break;
                 case 3:
                     tmpstring='rect2';
