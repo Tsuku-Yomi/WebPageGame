@@ -83,7 +83,7 @@ loadSprite(prefab.Effect.EFFECT_SPRITE_ID,"/sprite/effect.png",{
 })
 loadSprite("ulticon","/sprite/ulticon.png");
 loadSprite("ultline","/sprite/ultline2.png");
-loadSprite("bg","/sprite/bg.png");
+loadSprite("bg","/sprite/bg.jpg");
 loadSprite("title","/sprite/title.png");
 loadSprite("banner","/sprite/banner.png");
 loadSound("bgm","/music/bgm.mp3");
