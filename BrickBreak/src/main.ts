@@ -154,8 +154,11 @@ var BIG_ENEMY_COLD_DOWN=10;
 var MID_ENEMY_COLD_DOWN=3;
 var SUM_COLD_DOWN=3;
 var FROZEN_TIME=4;
+var ULT_SCORE=800;
 
 
+let bgXscale=width()/1050;
+let bgYscale=height()/2100;
 let diff=1;
 let starCount=0;
 let score=0;
@@ -252,14 +255,15 @@ let tutorial=add([
     "gaming",
     origin("topright"),
     sprite("tut"),
-    scale(0.3),
+    scale(offset.ENEMY_SHOW_LINE*0.65/249),
     z(layersetting.MENU_LAYER),
     pos(width()-20,offset.ENEMY_SHOW_LINE*0.12),
 ])
 let starTable=add([
     "star",
-    text("0",{size:40}),
+    text("0",{size:100}),
     origin("bot"),
+    scale(offset.ENEMY_SHOW_LINE*0.65/249),
     pos(center().x,offset.ENEMY_SHOW_LINE),
     z(layersetting.MENU_LAYER)
 ]);
@@ -348,13 +352,13 @@ let ultlinelayer=add([
 ultline.hidden=true;
 ultline.onUpdate(()=>{
     if(ultline.power<0){
-        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(-500)),height());
-        ulttext.text=String(Math.floor(ultline.power/(-5)))+"%";
-        ultline.power+=dt()*500;
+        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(-ULT_SCORE)),height());
+        ulttext.text=String(Math.floor(ultline.power*100/(-ULT_SCORE)))+"%";
+        ultline.power+=dt()*ULT_SCORE;
     }
     else{
-        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(500)),height());
-        ulttext.text=String(Math.floor(ultline.power/(5)))+"%";
+        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(ULT_SCORE)),height());
+        ulttext.text=String(Math.floor(ultline.power*100/(ULT_SCORE)))+"%";
     }
 });
 
@@ -419,7 +423,7 @@ onUpdate(()=>{
         }
         if(obj.gameObject.pos.y>offset.SHOOTER_POS.y+20){
             //Fall
-            if(ultline.power<500)
+            if(ultline.power<ULT_SCORE)
                 GameStateController(2);
             else{
                 ultline.power=-ultline.power;
@@ -449,15 +453,17 @@ onUpdate(()=>{
 onUpdate(SpawnEnemy);
 
 onKeyPress("k",()=>{
-    ultline.power=500;
+    starCount+=10000;
+    ultline.power=ULT_SCORE;
     isFrozen=!isFrozen;
 })
 
 onCollide("Buttle","Enemy",(objA,objB)=>{
     if(objA.hidden||objB.hidden) return;
-    ++score;
-    scoreTable.text=String(score)+"00";
-    if(ultline.power<500) ++ultline.power;
+    ++starCount;
+    //scoreTable.text=String(score)+"00";
+    starTable.text=String(starCount);
+    if(ultline.power<ULT_SCORE) ++ultline.power;
     else {
         ultline.power=-ultline.power;
         EnemyPool.Init();
@@ -563,9 +569,9 @@ function SpawnEnemy(){
         if(spawnArr[i]<=0&&chance(0.8)){
             let buff=0;
             if(chance(0.03)) buff=1;
-            if(chance(0.03)) buff=2;
-            if(chance(0.03)) buff=3;
-            if(chance(0.07)) buff=4;
+            if(chance(0.03)) buff=2;//
+            if(chance(0.01)) buff=3;//frozen
+            if(chance(0.01)) buff=4;//star
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
         }else{
             spawnArr[i]--;
@@ -599,7 +605,7 @@ function GameStateController(state:number){
             let tmptitle=add([
                 "startmenu",
                 sprite("title"),
-                scale(0.41),
+                scale(Math.max(bgXscale,bgYscale)),
                 origin("center"),
                 pos(center()),
                 z(10)
@@ -643,6 +649,8 @@ function GameStateController(state:number){
                 obj.hidden=true;
             })
         //bgmusic.pause();
+        shooter.attack=Math.floor(shooter.attack/2+1);
+        shooter.buttleNum=Math.floor(shooter.buttleNum/2+1);
         starTable.text='0';
         shooter.hidden=true;
         aimLine.hidden=true;
@@ -654,14 +662,22 @@ function GameStateController(state:number){
         shooter.buttleNum=buttlePool.poolSize;
         buttlePool.Init();
         EnemyPool.Init();
-        if(starCount>=101){
+        if(starCount>=10100){
             let tmp=add([
                 "gameovermenu",
-                text("YOU WIN!!\nYOUR SCORE:"+String(score),{size:36}),
-                origin("center"),
-                pos(center()),
+                text("YOU WIN!!\nYOUR SCORE:"+String(starCount),{size:36}),
+                origin("top"),
+                pos(center().x,center().y+80),
                 z(layersetting.MENU_LAYER),
                 scale(offset.ENEMY_SCALE),
+            ])
+            let winimg=add([
+                "gameovermenu",
+                sprite("ulticon",{anim:"img1"}),
+                origin("bot"),
+                pos(center().x,center().y+80),
+                z(layersetting.MENU_LAYER),
+                scale(offset.ENEMY_SCALE*1.5),
             ])
             wait(1,()=>{
                 tmp.onUpdate(()=>{if(inputLock||isMouseDown()){
@@ -673,7 +689,7 @@ function GameStateController(state:number){
         }else{
             let tmp=add([
                 "gameovermenu",
-                text("YOU LOSE,\ntouch to try again,\nYOUR SCORE:"+String(score),{size:32,}),
+                text("Game Over,\ntouch to try again,\nYOUR SCORE:"+String(starCount),{size:32,}),
                 origin("center"),
                 pos(center()),
                 z(layersetting.MENU_LAYER),
@@ -709,15 +725,24 @@ function GetBuff(pos:Vec2,type:number){
             })
             break;
         case 4:
-            starCount++;
-            starTable.text=String(starCount)+"00";
+            starCount+=100;
+            starTable.text=String(starCount);
+            if(ultline.power<ULT_SCORE) ultline.power=Math.min(ultline.power+100,ULT_SCORE);
+            if(ultline.power>=ULT_SCORE){
+                ultline.power=-ultline.power;
+                EnemyPool.Init();
+                ulticon.hidden=false;
+                ulticon.nowScale=0.1;
+                shooter.attack++;
+                return;
+            }
             // backup,star effect by fku
             // let tmpstar=EffectPool.GetObject();
             // tmpstar.Init(pos,layersetting.MENU_LAYER,"empty",offset.ENEMY_SCALE,vec2(30,20),800,0);
             // wait(0.5,()=>{
             //     EffectPool.DestroyObject(tmpstar);
             // })
-            if(starCount>=101) GameStateController(2);
+            //if(starCount>=101) GameStateController(2);
             break;
     }
 }
