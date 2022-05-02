@@ -281,7 +281,7 @@ let ulticon=add([
     origin("center"),
     z(layersetting.MENU_LAYER),
     {
-        nowAnim:1,
+        nowAnim:2,
         nowScale:0.1,
     }
 ]);
@@ -357,7 +357,6 @@ ultline.onUpdate(()=>{
         ulttext.text=String(Math.floor(ultline.power/(5)))+"%";
     }
 });
-
 
 onUpdate(shooterUpdate);
 
@@ -450,6 +449,7 @@ onUpdate(()=>{
 onUpdate(SpawnEnemy);
 
 onKeyPress("k",()=>{
+    ultline.power=500;
     isFrozen=!isFrozen;
 })
 
