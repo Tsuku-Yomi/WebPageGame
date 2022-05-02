@@ -291,7 +291,7 @@ ulticon.onUpdate(()=>{
     if(ulticon.nowScale>1.5){
         wait(1.5,()=>{ulticon.hidden=true;
             ulticon.play("img"+String(ulticon.nowAnim));
-            ulticon.nowAnim=(ulticon.nowAnim%2)+1;
+            //ulticon.nowAnim=(ulticon.nowAnim%2)+1;
         }) 
         ulticon.nowScale=-1;
     }    
