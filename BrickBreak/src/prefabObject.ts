@@ -156,7 +156,7 @@ export namespace prefab{
                 this.gameObject.play("n"+randi(0,3));
                 this.gameObject.area.shape="circle";
             }else{
-                this.gameObject.play("n"+randi(3,6));
+                this.gameObject.play("n"+randi(3,5));
                 this.gameObject.area.shape="rect";
             }
             this.gameObject.buff=buff;

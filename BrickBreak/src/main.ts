@@ -57,11 +57,11 @@ loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:5,a
         from:7,
         to:7
     },
-    n4:{
+    n5:{
         from:8,
         to:8
     },
-    n5:{
+    n4:{
         from:9,
         to:9
     }
@@ -191,7 +191,7 @@ const shooter=add(
         scale(offset.ENEMY_SCALE/2),
         rotate(90),
         origin("center"),
-        text("",{size:28}),
+        text("",{size:72}),
         {
             buttleNum:10,
             attack:1,
@@ -308,7 +308,7 @@ let ultline=add([
     origin("botleft"),
     scale(offset.UTL_LINE_SCALE),
     {
-        power:500,
+        power:0,
     }
     ,z(layersetting.MENU_LAYER)
 ])
@@ -463,6 +463,7 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
         EnemyPool.Init();
         ulticon.hidden=false;
         ulticon.nowScale=0.1;
+        shooter.attack++;
         return;
     }
     if(objB.area.shape=="circle")
@@ -709,7 +710,7 @@ function GetBuff(pos:Vec2,type:number){
             break;
         case 4:
             starCount++;
-            starTable.text=String(starCount);
+            starTable.text=String(starCount)+"00";
             // backup,star effect by fku
             // let tmpstar=EffectPool.GetObject();
             // tmpstar.Init(pos,layersetting.MENU_LAYER,"empty",offset.ENEMY_SCALE,vec2(30,20),800,0);
