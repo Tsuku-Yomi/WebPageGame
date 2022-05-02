@@ -138,6 +138,9 @@ loadSprite("cow","/sprite/cow.png");
 //
 //2022年5月2日07:27:29
 loadSprite("tut","/sprite/tut.png");
+//2022年5月2日17:08:31
+loadSprite("underbanner","/sprite/underbanner.png");
+
 loadSprite("bg","/sprite/bg.jpg");
 loadSprite("title","/sprite/title.png");
 loadSprite("star","/sprite/xh.png");
@@ -153,7 +156,7 @@ var SHOOTER_COLD_DOWN=0.1;
 var BIG_ENEMY_COLD_DOWN=10;
 var MID_ENEMY_COLD_DOWN=3;
 var SUM_COLD_DOWN=3;
-var FROZEN_TIME=4;
+var FROZEN_TIME=2;
 var ULT_SCORE=800;
 
 
@@ -190,8 +193,8 @@ const shooter=add(
     [
         "shooter",
         sprite(SHOOTER_SPRITE_ID),
-        pos(offset.SHOOTER_POS),
-        scale(offset.ENEMY_SCALE/2),
+        pos(offset.SHOOTER_POS.x,offset.SHOOTER_POS.y-20),
+        scale(offset.ENEMY_SCALE/3),
         rotate(90),
         origin("center"),
         text("",{size:72}),
@@ -277,10 +280,19 @@ let menuBg=add([
     pos(center().x,offset.ENEMY_SHOW_LINE),
     z(layersetting.MENU_BACKGROUND_LAYER)
 ]);
+let underBg=add([
+    "gaming",
+    sprite("underbanner"),
+    scale(offset.UTL_LINE_SCALE),
+    pos(vec2(0,height())),
+    origin("botleft"),
+    z(layersetting.MENU_BACKGROUND_LAYER),
+])
 menuBg.hidden=true;
 let ulticon=add([
     sprite("ulticon",{anim:"img2"}),
-    scale(1),
+    //delete;
+    scale(0),
     pos(center()),
     origin("center"),
     z(layersetting.MENU_LAYER),
@@ -290,21 +302,21 @@ let ulticon=add([
     }
 ]);
 ulticon.hidden=true;
-ulticon.onUpdate(()=>{
-    if(ulticon.hidden) return;
-    if(ulticon.nowScale>1.5){
-        wait(1.5,()=>{ulticon.hidden=true;
-            ulticon.play("img"+String(ulticon.nowAnim));
-            //ulticon.nowAnim=(ulticon.nowAnim%2)+1;
-        }) 
-        ulticon.nowScale=-1;
-    }    
-    else if(ulticon.nowScale>0){
-        ulticon.nowScale+=dt()*2;
-        ulticon.scaleTo(ulticon.nowScale);
-    }
-    //debug.log(String(ulticon.scale));
-});
+// ulticon.onUpdate(()=>{
+//     if(ulticon.hidden) return;
+//     if(ulticon.nowScale>1.5){
+//         wait(1.5,()=>{ulticon.hidden=true;
+//             ulticon.play("img"+String(ulticon.nowAnim));
+//             //ulticon.nowAnim=(ulticon.nowAnim%2)+1;
+//         }) 
+//         ulticon.nowScale=-1;
+//     }    
+//     else if(ulticon.nowScale>0){
+//         ulticon.nowScale+=dt()*2;
+//         ulticon.scaleTo(ulticon.nowScale);
+//     }
+//     //debug.log(String(ulticon.scale));
+// });
 let ultStartX=width()/5;
 let ultline=add([
     sprite("ultlinenow"),
@@ -314,16 +326,16 @@ let ultline=add([
     {
         power:0,
     }
-    ,z(layersetting.MENU_LAYER)
+    ,z(-10)
 ])
-let ultlinebg=add([
-    "gaming",
-    sprite("ultlinebg"),
-    origin("bot"),
-    pos(vec2(center().x,height())),
-    scale(offset.UTL_LINE_SCALE),
-    z(layersetting.MENU_BACKGROUND_LAYER)
-])
+// let ultlinebg=add([
+//     "gaming",
+//     sprite("ultlinebg"),
+//     origin("bot"),
+//     pos(vec2(center().x,height())),
+//     scale(offset.UTL_LINE_SCALE),
+//     z(layersetting.MENU_BACKGROUND_LAYER)
+// ])
 let cowIcon=add([
     //"gaming",
     sprite("cow"),
@@ -339,7 +351,7 @@ let ulttext=add([
     origin("botleft"),
     pos(vec2(0,height())),
     scale(offset.UTL_LINE_SCALE),
-    z(layersetting.MENU_LAYER),
+    z(-10),
 ])
 let ultlinelayer=add([
     "gaming",
@@ -347,20 +359,20 @@ let ultlinelayer=add([
     sprite("ultlinelayer"),
     pos(vec2(ultStartX,height())),
     z(6),
-    scale(offset.UTL_LINE_SCALE),
+    scale(-10),
 ])
 ultline.hidden=true;
-ultline.onUpdate(()=>{
-    if(ultline.power<0){
-        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(-ULT_SCORE)),height());
-        ulttext.text=String(Math.floor(ultline.power*100/(-ULT_SCORE)))+"%";
-        ultline.power+=dt()*ULT_SCORE;
-    }
-    else{
-        ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(ULT_SCORE)),height());
-        ulttext.text=String(Math.floor(ultline.power*100/(ULT_SCORE)))+"%";
-    }
-});
+// ultline.onUpdate(()=>{
+//     if(ultline.power<0){
+//         ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(-ULT_SCORE)),height());
+//         ulttext.text=String(Math.floor(ultline.power*100/(-ULT_SCORE)))+"%";
+//         ultline.power+=dt()*ULT_SCORE;
+//     }
+//     else{
+//         ultlinelayer.moveTo(ultStartX+(width()-ultStartX)*(ultline.power/(ULT_SCORE)),height());
+//         ulttext.text=String(Math.floor(ultline.power*100/(ULT_SCORE)))+"%";
+//     }
+// });
 
 onUpdate(shooterUpdate);
 
@@ -415,21 +427,17 @@ onUpdate(()=>{
             //    EffectPool.DestroyObject(tmp2);
             // });
             //debug.log(String(tmp.poolId)+" "+String(tmp2.poolId));
-            EnemyPool.DestroyObject(obj);
-
-
-
-            
+            EnemyPool.DestroyObject(obj); 
         }
         if(obj.gameObject.pos.y>offset.SHOOTER_POS.y+20){
             //Fall
-            if(ultline.power<ULT_SCORE)
+            //if(ultline.power<ULT_SCORE)
                 GameStateController(2);
-            else{
-                ultline.power=-ultline.power;
-                EnemyPool.Init();
-                ulticon.hidden=false;
-                ulticon.nowScale=0.1;
+            // else{
+            //     ultline.power=-ultline.power;
+            //     EnemyPool.Init();
+            //     ulticon.hidden=false;
+            //     ulticon.nowScale=0.1;
                 // for(let i=0;i<10;++i){
                 //     let tmp=EffectPool.GetObject();
                 //     tmp.Init(vec2(i*width()/10,0),layersetting.EFFECT_LAYER,"sp",offset.ENEMY_SCALE,vec2(rand()*width(),height()+100),randi(50,150),60);
@@ -437,7 +445,7 @@ onUpdate(()=>{
                 //         EffectPool.DestroyObject(tmp);
                 //     })
                 // }
-            }
+            //}
             //EnemyPool.DestroyObject(obj);
         }
     })    
@@ -463,15 +471,15 @@ onCollide("Buttle","Enemy",(objA,objB)=>{
     ++starCount;
     //scoreTable.text=String(score)+"00";
     starTable.text=String(starCount);
-    if(ultline.power<ULT_SCORE) ++ultline.power;
-    else {
-        ultline.power=-ultline.power;
-        EnemyPool.Init();
-        ulticon.hidden=false;
-        ulticon.nowScale=0.1;
-        shooter.attack++;
-        return;
-    }
+    // if(ultline.power<ULT_SCORE) ++ultline.power;
+    // else {
+    //     ultline.power=-ultline.power;
+    //     EnemyPool.Init();
+    //     ulticon.hidden=false;
+    //     ulticon.nowScale=0.1;
+    //     shooter.attack++;
+    //     return;
+    // }
     if(objB.area.shape=="circle")
     objA.towardVec=tmath.GetReflectionVector(
         objA.towardVec,
@@ -578,7 +586,7 @@ function SpawnEnemy(){
         }
             
     }
-    diff++;
+    diff+=Math.max(Math.floor(shooter.attack/3),1);
     sumCooldown--;
     bigCooldown--;
     midCooldown--;
@@ -649,8 +657,8 @@ function GameStateController(state:number){
                 obj.hidden=true;
             })
         //bgmusic.pause();
-        shooter.attack=Math.floor(shooter.attack/2+1);
-        shooter.buttleNum=Math.floor(shooter.buttleNum/2+1);
+        shooter.attack=Math.min(1,Math.floor(shooter.attack/2+1));
+        shooter.buttleNum=Math.min(Math.floor(shooter.buttleNum/2+1),5);
         starTable.text='0';
         shooter.hidden=true;
         aimLine.hidden=true;
@@ -716,7 +724,7 @@ function GetBuff(pos:Vec2,type:number){
             shooter.attack++;
             break;
         case 2:
-            shooter.buttleNum+=5;
+            shooter.buttleNum++;
             break;
         case 3:
             isFrozen=true;
@@ -725,17 +733,17 @@ function GetBuff(pos:Vec2,type:number){
             })
             break;
         case 4:
-            starCount+=100;
+            starCount+=50;
             starTable.text=String(starCount);
-            if(ultline.power<ULT_SCORE) ultline.power=Math.min(ultline.power+100,ULT_SCORE);
-            if(ultline.power>=ULT_SCORE){
-                ultline.power=-ultline.power;
-                EnemyPool.Init();
-                ulticon.hidden=false;
-                ulticon.nowScale=0.1;
-                shooter.attack++;
-                return;
-            }
+            // if(ultline.power<ULT_SCORE) ultline.power=Math.min(ultline.power+50,ULT_SCORE);
+            // if(ultline.power>=ULT_SCORE){
+            //     ultline.power=-ultline.power;
+            //     EnemyPool.Init();
+            //     ulticon.hidden=false;
+            //     ulticon.nowScale=0.1;
+            //     shooter.attack++;
+            //     return;
+            // }
             // backup,star effect by fku
             // let tmpstar=EffectPool.GetObject();
             // tmpstar.Init(pos,layersetting.MENU_LAYER,"empty",offset.ENEMY_SCALE,vec2(30,20),800,0);
