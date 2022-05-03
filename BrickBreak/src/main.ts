@@ -24,47 +24,39 @@ const AIMLINE_SPRITE_ID="cnoenrcvhuo";
 
 //Spirte load 
 loadSprite(prefab.Buttle.BULLTE_SPRITE_ID,"/sprite/buttle.png");
-loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:5,anims:{
+loadSprite(prefab.Enemy.ENEMY_SPRITE_ID,"/sprite/enemy.png",{sliceX:2,sliceY:4,anims:{
     n0:{
         from:0,
         to:0
     },
-    rect1:{
+    n1:{
         from:1,
         to:1
     },
-    cir2:{
+    n2:{
         from:2,
         to:2
     },
-    rect2:{
+    n3:{
         from:3,
         to:3
     },
-    n1:{
+    score:{
         from:4,
         to:4
     },
-    rect3:{
+    attack:{
         from:5,
         to:5
     },
-    n2:{
+    buttle:{
         from:6,
         to:6
     },
-    n3:{
+    frozen:{
         from:7,
         to:7
     },
-    n5:{
-        from:8,
-        to:8
-    },
-    n4:{
-        from:9,
-        to:9
-    }
 }});
 loadSprite(SHOOTER_SPRITE_ID,"/sprite/shooterbig.png");
 loadSprite(AIMLINE_SPRITE_ID,"/sprite/aimline.png");
@@ -578,8 +570,8 @@ function SpawnEnemy(){
             let buff=0;
             if(chance(0.03)) buff=1;
             if(chance(0.03)) buff=2;//
-            if(chance(0.01)) buff=3;//frozen
-            if(chance(0.01)) buff=4;//star
+            if(chance(0.03)) buff=3;//frozen
+            if(chance(0.03)) buff=4;//star
             EnemyPool.GetObject().Init(diff,offset.GetSpawnPos(i,1),chance(0.5)?"circle":"rect",1,buff) ;
         }else{
             spawnArr[i]--;
@@ -613,7 +605,7 @@ function GameStateController(state:number){
             let tmptitle=add([
                 "startmenu",
                 sprite("title"),
-                scale(Math.max(bgXscale,bgYscale)),
+                scale(Math.max(bgXscale,bgYscale)+0.05),
                 origin("center"),
                 pos(center()),
                 z(10)

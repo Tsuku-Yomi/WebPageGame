@@ -5,7 +5,7 @@ export namespace offset{
     export const SETTING_ENEMY_SCALE_BLOCK=0.96;
     export const SETTING_SPRITE_WIDTH=64;        
     export const SETTING_ENEMY_SHOW_LINE=0.15;
-    export const SETTING_TIME_BLOCK_DROP=12;
+    export const SETTING_TIME_BLOCK_DROP=17;
 
 
     export var SHOOTER_DISTANCE_FRONT;

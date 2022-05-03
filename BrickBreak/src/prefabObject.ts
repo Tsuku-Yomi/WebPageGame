@@ -153,26 +153,26 @@ export namespace prefab{
 
         public Init(hp:number,pos:Vec2,areaType:Shape,size:number,buff?:number):void{
             if(areaType=='circle'){
-                this.gameObject.play("n"+randi(0,3));
+                this.gameObject.play("n"+randi(0,2));
                 this.gameObject.area.shape="circle";
             }else{
-                this.gameObject.play("n"+randi(3,5));
+                this.gameObject.play("n"+randi(2,4));
                 this.gameObject.area.shape="rect";
             }
             this.gameObject.buff=buff;
             let tmpstring:string;
             switch(buff){
                 case 1:
-                    tmpstring='cir2';
+                    tmpstring='attack';
                     break;
                 case 2:
-                    tmpstring='rect1';
+                    tmpstring='buttle';
                     break;
                 case 3:
-                    tmpstring='rect2';
+                    tmpstring='frozen';
                     break;
                 case 4:
-                    tmpstring='rect3';
+                    tmpstring='score';
                     break;
             }
             if(buff>0&&buff<=4) this.gameObject.play(tmpstring);
